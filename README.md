@@ -297,7 +297,8 @@ MIT License © 2024
 Feel free to fork, modify, and use this project for your needs.
 
 ---
-
+## Learning Git Pull
+This line was added from GitHub website.
 **Made with ❤️ for Health & Fitness**
 
 For questions or issues, refer to the setup documentation or check API response error messages.
