@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { rewardService } from '../services/apiService';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/Shared';
 
 export const RewardsPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [rewards, setRewards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState('');
@@ -37,6 +39,10 @@ export const RewardsPage = () => {
     }
   };
 
+  const goToRedemptionHistory = () => {
+    navigate('/redemption-history');
+  };
+
   if (loading) return <LoadingSpinner />;
 
   const canRedeem = (pointsRequired) => user?.availablePoints >= pointsRequired;
@@ -46,6 +52,7 @@ export const RewardsPage = () => {
       <div className="container">
         <h1>🎁 Available Rewards</h1>
         <p className="subtitle">Your Available Points: <strong>{user?.availablePoints || 0}</strong></p>
+        <button type="button" className="history-btn" onClick={goToRedemptionHistory}>View Redeem History</button>
 
         {message && <div className="alert alert-success">{message}</div>}
         {error && <div className="alert alert-error">{error}</div>}
@@ -111,7 +118,18 @@ export const RewardsPage = () => {
         .subtitle {
           color: var(--primary-color);
           font-size: 18px;
-          margin-bottom: 30px;
+          margin-bottom: 15px;
+        }
+
+        .history-btn {
+          background: var(--primary-color);
+          color: white;
+          border: none;
+          border-radius: 8px;
+          padding: 10px 16px;
+          cursor: pointer;
+          font-weight: 600;
+          margin-bottom: 20px;
         }
 
         .reward-card {

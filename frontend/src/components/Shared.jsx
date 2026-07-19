@@ -13,6 +13,7 @@ export const Header = ({ user, onLogout }) => {
               <li><a href="/dashboard">Dashboard</a></li>
               <li><a href="/steps">Steps</a></li>
               <li><a href="/rewards">Rewards</a></li>
+              <li><a href="/redemption-history">Redeem History</a></li>
               <li><a href="/leaderboard">Leaderboard</a></li>
               {user?.role === 'admin' && <li><a href="/admin">Admin</a></li>}
               <li><a href="/profile">Profile</a></li>
@@ -90,6 +91,7 @@ export const Footer = () => {
     <footer className="footer">
       <div className="container">
         <p>&copy; 2024 Health Reward Management System. All rights reserved.</p>
+        <p className="developer-credit">Develop By Amit Kushwaha</p>
       </div>
 
       <style jsx>{`
@@ -103,6 +105,12 @@ export const Footer = () => {
 
         .footer p {
           margin: 0;
+        }
+
+        .developer-credit {
+          margin-top: 8px;
+          color: #d1fae5;
+          font-weight: 600;
         }
       `}</style>
     </footer>

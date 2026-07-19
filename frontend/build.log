@@ -1,0 +1,26 @@
+
+> health-reward-system-frontend@0.1.0 build
+> react-scripts build ; status=$?; tail 20 build.log; echo EXIT_CODE:$status
+
+(node:26900) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Creating an optimized production build...
+Compiled successfully.
+
+File sizes after gzip:
+
+  79.97 kB  build\static\js\main.079caa1a.js
+  1.03 kB   build\static\css\main.89841a15.css
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+
