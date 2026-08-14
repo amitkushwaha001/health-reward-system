@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: health-frontend
+  template:
+    metadata:
+      labels:
+        app: health-frontend
+    spec:
+      containers:
+        - name: health-frontend
+          image: health-reward-system-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 3000

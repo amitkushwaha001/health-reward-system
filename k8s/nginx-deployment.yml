@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: health-nginx
+
+spec:
+  replicas: 1
+
+  selector:
+    matchLabels:
+      app: health-nginx
+
+  template:
+    metadata:
+      labels:
+        app: health-nginx
+
+    spec:
+      containers:
+        - name: nginx
+          image: health-reward-nginx:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80

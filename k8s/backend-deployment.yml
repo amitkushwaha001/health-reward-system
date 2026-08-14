@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: health-backend
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: health-backend
+
+  template:
+    metadata:
+      labels:
+        app: health-backend
+
+    spec:
+      containers:
+        - name: health-backend
+          image: health-reward-system-backend:latest
+
+          ports:
+            - containerPort: 5000
