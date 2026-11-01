@@ -10,6 +10,8 @@ export const Profile = () => {
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
+    dailyStepGoal: user?.dailyStepGoal || '',
+    preferredWalkingTime: user?.preferredWalkingTime || '',
   });
   const [passwordForm, setPasswordForm] = useState({
     currentPassword: '',
@@ -36,12 +38,17 @@ export const Profile = () => {
 
   const updateProfile = async (e) => {
     e.preventDefault();
+    if (!window.confirm('Save these profile and personal goal preferences?')) return;
     setLoading(true);
     setError('');
     setMessage('');
 
     try {
-      const response = await userService.updateProfile(formData);
+      const response = await userService.updateProfile({
+        ...formData,
+        dailyStepGoal: formData.dailyStepGoal ? Number(formData.dailyStepGoal) : null,
+        preferredWalkingTime: formData.preferredWalkingTime || null,
+      });
       setProfile(response.data.data);
       updateUser(response.data.data);
       setMessage('Profile updated successfully!');
@@ -140,6 +147,29 @@ export const Profile = () => {
                       value={formData.email}
                       onChange={handleProfileChange}
                     />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="dailyStepGoal">Personal daily step target (optional)</label>
+                    <input
+                      id="dailyStepGoal"
+                      type="number"
+                      name="dailyStepGoal"
+                      min="1"
+                      max="1000000"
+                      step="1"
+                      value={formData.dailyStepGoal}
+                      onChange={handleProfileChange}
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="preferredWalkingTime">Preferred time (optional)</label>
+                    <select id="preferredWalkingTime" name="preferredWalkingTime" value={formData.preferredWalkingTime} onChange={handleProfileChange}>
+                      <option value="">No preference</option>
+                      <option value="morning">Morning</option>
+                      <option value="midday">Midday</option>
+                      <option value="evening">Evening</option>
+                      <option value="flexible">Flexible</option>
+                    </select>
                   </div>
                   <div className="button-group">
                     <button

@@ -4,7 +4,7 @@ Copy these files to set up your environment.
 
 ## Backend .env
 
-Create `backend/.env`:
+Copy `backend/.env.example` to `backend/.env` and set your MongoDB URI and a random JWT secret:
 
 ```env
 # =================================
@@ -33,8 +33,8 @@ NODE_ENV=development
 # JWT CONFIGURATION
 # =================================
 
-# Secret key for JWT signing (Change this in production!)
-JWT_SECRET=your_super_secret_jwt_key_change_in_production_12345
+# Secret key for JWT signing; generate a random value of at least 32 characters
+JWT_SECRET=replace-this-with-a-random-secret-at-least-32-characters
 
 # Token expiration
 JWT_EXPIRE=7d
@@ -46,6 +46,10 @@ JWT_EXPIRE=7d
 
 # Points conversion (100 steps = 1 point)
 STEPS_TO_POINTS_RATIO=100
+CORS_ORIGINS=http://localhost:3000
+API_RATE_LIMIT=300
+LOGIN_RATE_LIMIT=10
+AI_RATE_LIMIT=20
 
 # Cash redemption rate (1 point = ₹0.1)
 CASH_REDEMPTION_RATE=0.1
@@ -65,9 +69,6 @@ CASH_REDEMPTION_RATE=0.1
 # ADMIN CONFIGURATION
 # =================================
 
-# Default admin credentials (for seeding)
-ADMIN_EMAIL=admin@healthreward.com
-ADMIN_PASSWORD=AdminPassword123
 ```
 
 ## Frontend .env
@@ -148,14 +149,27 @@ mongod
 | JWT_SECRET | Secret key for tokens | any_random_string |
 | JWT_EXPIRE | How long tokens last | 7d |
 | STEPS_TO_POINTS_RATIO | Steps to points conversion | 100 |
+| API_RATE_LIMIT | Requests per IP per 15-minute API window | 300 |
+| LOGIN_RATE_LIMIT | Login attempts per IP per 15-minute window | 10 |
+| AI_RATE_LIMIT | Assistant/recommendation generation requests per IP per 15-minute window | 20 |
 | REACT_APP_API_BASE_URL | Backend API URL | http://localhost:5000/api |
+
+## Analytics and in-app assistant
+
+The authenticated dashboard analytics use the account's recorded step, point, and redemption data. Select `daily`, `weekly`, or `monthly` ranges; results are restricted to the signed-in user. Calories and activity duration are rough step-derived estimates, not measured values. Missing activity records remain unlogged rather than being presented as zero.
+
+The assistant and recommendation engine currently run deterministic logic within this application. They do not call an external AI provider or send activity data to a third party, and no provider API key is required. Recommendations are optional, explain their data basis, and can be accepted or dismissed. Setting a suggested goal requires confirmation; the assistant does not diagnose, prescribe, redeem rewards, or change account settings. Projections are illustrative estimates, not predictions or medical advice.
+
+Protected endpoints include `GET /api/analytics/activity`, `GET /api/ai/insights`, `GET /api/ai/recommendations`, `POST /api/ai/recommendations/generate`, `GET /api/ai/recommendations/history`, `PATCH /api/ai/recommendations/:id/status`, `GET /api/ai/chat/history`, and `POST /api/ai/chat`. AI requests are rate limited separately by `AI_RATE_LIMIT`.
+
+Run backend tests with `cd backend && npm test`; run frontend tests with `cd frontend && npm test -- --watchAll=false`, then verify the frontend production bundle with `npm run build`.
 
 ## Security Best Practices
 
 ### For Development:
-- Use simple credentials
 - Store in `.env` (never commit!)
 - Use local MongoDB for testing
+- Use a local MongoDB replica set for step/reward operations that require transactions.
 
 ### For Production:
 - Generate strong JWT_SECRET:
@@ -168,6 +182,8 @@ mongod
 - Use HTTPS/SSL
 - Never expose .env file
 - Rotate JWT_SECRET periodically
+- Set `CORS_ORIGINS` to the exact trusted frontend origin(s), separated by commas.
+- Never run `backend/seed.js` against production; its opt-in mode is only for disposable local demo data.
 
 ## Common Issues
 

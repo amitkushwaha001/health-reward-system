@@ -2,12 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { stepService, authService } from '../services/apiService';
 import { useAuth } from '../context/AuthContext';
 import { StatCard, LoadingSpinner } from '../components/Shared';
+import { ActivityAnalytics } from '../components/ActivityAnalytics';
+import { Link } from 'react-router-dom';
+import { AIInsights, AssistantPanel, RecommendedForYou } from '../components/AIExperience';
 
 export const Dashboard = () => {
   const { updateUser } = useAuth();
   const [stats, setStats] = useState(null);
   const [recentSteps, setRecentSteps] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -25,7 +29,7 @@ export const Dashboard = () => {
       updateUser(profileRes.data.data);
       setRecentSteps(stepsRes.data.data);
     } catch (err) {
-      console.error('Error fetching data:', err);
+      setError(err.response?.data?.message || 'We could not load your dashboard.');
     } finally {
       setLoading(false);
     }
@@ -37,6 +41,12 @@ export const Dashboard = () => {
     <div className="dashboard-container">
       <div className="container">
         <h1>Welcome, {stats?.name}! 👋</h1>
+        {error && (
+          <div className="alert alert-error" role="alert">
+            {error}
+            <button type="button" className="text-button" onClick={fetchData}>Try again</button>
+          </div>
+        )}
 
         {/* Main Stats */}
         <div className="grid grid-4">
@@ -70,23 +80,30 @@ export const Dashboard = () => {
         <div className="quick-actions">
           <h2>Quick Actions</h2>
           <div className="action-buttons">
-            <a href="/steps" className="action-btn">
+            <Link to="/steps" className="action-btn">
               <span>📊</span>
               <span>Log Steps</span>
-            </a>
-            <a href="/rewards" className="action-btn">
+            </Link>
+            <Link to="/rewards" className="action-btn">
               <span>🎁</span>
               <span>View Rewards</span>
-            </a>
-            <a href="/leaderboard" className="action-btn">
+            </Link>
+            <Link to="/leaderboard" className="action-btn">
               <span>🏆</span>
               <span>Leaderboard</span>
-            </a>
-            <a href="/profile" className="action-btn">
+            </Link>
+            <Link to="/profile" className="action-btn">
               <span>👤</span>
               <span>Profile</span>
-            </a>
+            </Link>
           </div>
+        </div>
+
+        <ActivityAnalytics />
+        <AIInsights />
+        <div className="dashboard-ai-grid">
+          <RecommendedForYou />
+          <AssistantPanel />
         </div>
 
         {/* Recent Activity */}

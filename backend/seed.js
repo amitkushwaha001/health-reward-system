@@ -5,6 +5,13 @@ const Reward = require('./models/Reward');
 require('dotenv').config();
 
 const seedDatabase = async () => {
+  if (process.env.NODE_ENV !== 'development' || process.env.SEED_DEMO_DATA !== 'true') {
+    throw new Error('Demo seeding is disabled. Set NODE_ENV=development and SEED_DEMO_DATA=true for a local development database only.');
+  }
+  if (!process.env.MONGODB_URI) {
+    throw new Error('MONGODB_URI must be configured for local demo seeding');
+  }
+
   try {
     await mongoose.connect(process.env.MONGODB_URI, {
       useNewUrlParser: true,
@@ -13,7 +20,7 @@ const seedDatabase = async () => {
 
     console.log('Connected to MongoDB');
 
-    // Clear existing data
+    // This opt-in development utility intentionally replaces its local demo dataset.
     await User.deleteMany({});
     await Step.deleteMany({});
     await Reward.deleteMany({});
