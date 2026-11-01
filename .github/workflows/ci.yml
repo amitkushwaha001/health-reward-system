@@ -28,9 +28,24 @@ jobs:
           cache: npm
           cache-dependency-path: backend/package-lock.json
 
+      - name: Verify backend lockfile exists
+        run: test -f backend/package-lock.json
+
       - name: Install backend dependencies
         working-directory: backend
         run: npm ci
+
+      - name: Run backend tests only if configured
+        working-directory: backend
+        shell: bash
+        run: |
+          TEST_SCRIPT=$(node -p "require('./package.json').scripts && require('./package.json').scripts.test || ''")
+          if [ -n "$TEST_SCRIPT" ]; then
+            echo "Running backend tests..."
+            npm test -- --watch=false
+          else
+            echo "::notice::No backend test script configured; skipping backend tests."
+          fi
 
   frontend:
     name: Frontend checks
@@ -48,17 +63,34 @@ jobs:
           cache: npm
           cache-dependency-path: frontend/package-lock.json
 
+      - name: Verify frontend lockfile exists
+        run: test -f frontend/package-lock.json
+
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm ci
 
-      - name: Run frontend tests
+      - name: Run frontend tests only if files exist
         working-directory: frontend
+        shell: bash
         run: |
           if find src -type f \( -path '*/__tests__/*' -o -name '*.test.js' -o -name '*.test.jsx' -o -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.js' -o -name '*.spec.jsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) -print -quit | grep -q .; then
+            echo "Running frontend tests..."
             CI=true npm test -- --watchAll=false
           else
             echo "::notice::No frontend test files found; skipping frontend tests."
+          fi
+
+      - name: Run frontend lint only if configured
+        working-directory: frontend
+        shell: bash
+        run: |
+          LINT_SCRIPT=$(node -p "require('./package.json').scripts && require('./package.json').scripts.lint || ''")
+          if [ -n "$LINT_SCRIPT" ]; then
+            echo "Running frontend lint..."
+            npm run lint
+          else
+            echo "::notice::No frontend lint script configured; skipping frontend lint."
           fi
 
       - name: Build frontend
