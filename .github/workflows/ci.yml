@@ -2,32 +2,78 @@ name: Health Reward System CI
 
 on:
   push:
+    branches-ignore:
+      - main
+  pull_request:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  build:
-
+  backend:
+    name: Backend checks
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     steps:
-
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
 
-      - name: Install Backend Dependencies
+      - name: Install backend dependencies
         working-directory: backend
-        run: npm install
+        run: npm ci
 
-      - name: Install Frontend Dependencies
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
         working-directory: frontend
-        run: npm install
+        run: npm ci
 
-      - name: Build Frontend
+      - name: Run frontend tests
+        working-directory: frontend
+        run: |
+          if find src -type f \( -path '*/__tests__/*' -o -name '*.test.js' -o -name '*.test.jsx' -o -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.js' -o -name '*.spec.jsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) -print -quit | grep -q .; then
+            CI=true npm test -- --watchAll=false
+          else
+            echo "::notice::No frontend test files found; skipping frontend tests."
+          fi
+
+      - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Review dependency changes
+        uses: actions/dependency-review-action@v5
