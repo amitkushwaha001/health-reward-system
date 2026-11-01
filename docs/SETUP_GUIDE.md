@@ -150,6 +150,9 @@ JWT_EXPIRE=7d
 
 # Reward Configuration
 STEPS_TO_POINTS_RATIO=100
+CORS_ORIGINS=http://localhost:3000
+API_RATE_LIMIT=300
+LOGIN_RATE_LIMIT=10
 
 # Email Configuration (Optional for future use)
 EMAIL_SERVICE=gmail
@@ -536,8 +539,10 @@ Authorization: Bearer {admin_token}
 
 ```bash
 cd backend
-node seed.js
+NODE_ENV=development SEED_DEMO_DATA=true node seed.js
 ```
+
+This command deletes and recreates the demo dataset. Use only with a disposable local development database; never use it with production or real user data.
 
 This will create:
 - 1 Admin user

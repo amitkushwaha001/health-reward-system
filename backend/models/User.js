@@ -46,6 +46,17 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    dailyStepGoal: {
+      type: Number,
+      min: 1,
+      max: 1000000,
+      default: null,
+    },
+    preferredWalkingTime: {
+      type: String,
+      enum: ['morning', 'midday', 'evening', 'flexible', null],
+      default: null,
+    },
     isBlocked: {
       type: Boolean,
       default: false,

@@ -1,6 +1,7 @@
 const Reward = require('../models/Reward');
 const Redemption = require('../models/Redemption');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 const crypto = require('crypto');
 
 // @desc Get all available rewards
@@ -31,39 +32,59 @@ const redeemReward = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Please provide reward ID' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(rewardId)) {
+      return res.status(400).json({ success: false, message: 'Invalid reward ID' });
+    }
+
     const reward = await Reward.findById(rewardId);
     if (!reward) {
       return res.status(404).json({ success: false, message: 'Reward not found' });
     }
-
-    const user = await User.findById(req.user.id);
-
-    // Check if user has enough points
-    if (user.availablePoints < reward.pointsRequired) {
-      return res.status(400).json({
-        success: false,
-        message: `Insufficient points. You need ${reward.pointsRequired} points but have ${user.availablePoints}`,
-      });
+    if (!reward.isActive) {
+      return res.status(400).json({ success: false, message: 'This reward is no longer available' });
     }
 
-    // Generate unique redeem code
+    const session = await mongoose.startSession();
     const redeemCode = 'RDM' + crypto.randomBytes(4).toString('hex').toUpperCase();
+    let redemption;
+    let availablePoints;
 
-    // Create redemption record
-    const redemption = await Redemption.create({
-      userId: req.user.id,
-      rewardId: rewardId,
-      pointsUsed: reward.pointsRequired,
-      redemptionType: reward.category,
-      value: reward.value,
-      redeemCode,
-      status: 'approved',
-    });
+    try {
+      await session.withTransaction(async () => {
+        const user = await User.findById(req.user.id).session(session);
+        if (!user) {
+          return;
+        }
+        if (user.availablePoints < reward.pointsRequired) {
+          availablePoints = user.availablePoints;
+          return;
+        }
+        [redemption] = await Redemption.create([{
+          userId: req.user.id,
+          rewardId,
+          pointsUsed: reward.pointsRequired,
+          redemptionType: reward.category,
+          value: reward.value,
+          redeemCode,
+          status: 'approved',
+        }], { session });
+        user.availablePoints -= reward.pointsRequired;
+        user.redeemedPoints += reward.pointsRequired;
+        await user.save({ session });
+      });
+    } finally {
+      await session.endSession();
+    }
 
-    // Update user points
-    user.availablePoints -= reward.pointsRequired;
-    user.redeemedPoints += reward.pointsRequired;
-    await user.save();
+    if (availablePoints !== undefined) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient points. You need ${reward.pointsRequired} points but have ${availablePoints}`,
+      });
+    }
+    if (!redemption) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
 
     res.status(201).json({
       success: true,

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminService } from '../services/apiService';
 import { LoadingSpinner, StatCard } from '../components/Shared';
+import { AdminReportCharts } from '../components/AdminReportCharts';
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -332,6 +333,8 @@ export const AdminRewards = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     fetchRewards();
@@ -341,17 +344,17 @@ export const AdminRewards = () => {
     try {
       const response = await adminService.getRewards();
       setRewards(response.data.data);
-      setLoading(false);
     } catch (err) {
-      console.error('Failed to fetch rewards:', err);
+      setError(err.response?.data?.message || 'Failed to load rewards');
+    } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <LoadingSpinner />;
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setSaving(true);
+    setError('');
     try {
       if (editingId) {
         await adminService.updateReward(editingId, formData);
@@ -370,9 +373,47 @@ export const AdminRewards = () => {
       setEditingId(null);
       fetchRewards();
     } catch (err) {
-      setMessage('Error saving reward');
+      setError(err.response?.data?.message || 'Error saving reward');
+    } finally {
+      setSaving(false);
     }
   };
+
+  const handleEdit = (reward) => {
+    setEditingId(reward._id);
+    setFormData({
+      title: reward.title,
+      category: reward.category,
+      pointsRequired: reward.pointsRequired,
+      value: reward.value,
+      description: reward.description || '',
+    });
+  };
+
+  const handleDelete = async (reward) => {
+    if (!window.confirm(`Delete "${reward.title}"? Existing redemption history will remain.`)) return;
+    setError('');
+    try {
+      await adminService.deleteReward(reward._id);
+      setMessage('Reward deleted successfully');
+      await fetchRewards();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to delete reward');
+    }
+  };
+
+  const handleToggleActive = async (reward) => {
+    setError('');
+    try {
+      await adminService.updateReward(reward._id, { isActive: !reward.isActive });
+      setMessage(`Reward ${reward.isActive ? 'deactivated' : 'activated'} successfully`);
+      await fetchRewards();
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update reward');
+    }
+  };
+
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="admin-rewards">
@@ -384,6 +425,7 @@ export const AdminRewards = () => {
             {message}
           </div>
         )}
+        {error && <div className="alert alert-error" role="alert">{error}</div>}
 
         <div className="grid grid-2">
           <div className="card">
@@ -418,6 +460,8 @@ export const AdminRewards = () => {
                   type="number"
                   value={formData.pointsRequired}
                   onChange={(e) => setFormData({ ...formData, pointsRequired: e.target.value })}
+                  min="1"
+                  step="1"
                   required
                 />
               </div>
@@ -427,6 +471,8 @@ export const AdminRewards = () => {
                   type="number"
                   value={formData.value}
                   onChange={(e) => setFormData({ ...formData, value: e.target.value })}
+                  min="0"
+                  step="any"
                   required
                 />
               </div>
@@ -438,9 +484,10 @@ export const AdminRewards = () => {
                   rows="3"
                 />
               </div>
-              <button type="submit" className="btn btn-primary">
-                {editingId ? 'Update Reward' : 'Create Reward'}
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? 'Saving…' : editingId ? 'Update Reward' : 'Create Reward'}
               </button>
+              {editingId && <button type="button" className="btn btn-outline" onClick={() => setEditingId(null)}>Cancel edit</button>}
             </form>
           </div>
 
@@ -453,7 +500,12 @@ export const AdminRewards = () => {
                 rewards.map((reward) => (
                   <div key={reward._id} className="reward-item">
                     <h4>{reward.title}</h4>
-                    <p>{reward.pointsRequired} points</p>
+                    <p>{reward.pointsRequired} points · {reward.isActive ? 'Active' : 'Inactive'}</p>
+                    <div className="button-group">
+                      <button type="button" className="btn btn-outline" onClick={() => handleEdit(reward)}>Edit</button>
+                      <button type="button" className="btn btn-outline" onClick={() => handleToggleActive(reward)}>{reward.isActive ? 'Deactivate' : 'Activate'}</button>
+                      <button type="button" className="btn btn-outline" onClick={() => handleDelete(reward)}>Delete</button>
+                    </div>
                   </div>
                 ))
               ) : (
@@ -505,6 +557,7 @@ export const AdminRewards = () => {
 export const AdminReports = () => {
   const [reports, setReports] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetchReports();
@@ -515,7 +568,7 @@ export const AdminReports = () => {
       const response = await adminService.getReports();
       setReports(response.data.data);
     } catch (err) {
-      console.error('Failed to fetch reports:', err);
+      setError(err.response?.data?.message || 'Failed to fetch reports');
     } finally {
       setLoading(false);
     }
@@ -527,8 +580,10 @@ export const AdminReports = () => {
     <div className="admin-reports">
       <div className="container">
         <h1>📈 Reports</h1>
+        {error && <div className="alert alert-error" role="alert">{error}</div>}
 
         {reports && (
+          <>
           <div className="grid grid-2">
             <div className="card">
               <div className="card-header">
@@ -555,6 +610,8 @@ export const AdminReports = () => {
               </div>
             </div>
           </div>
+          <AdminReportCharts reports={reports} />
+          </>
         )}
       </div>
 

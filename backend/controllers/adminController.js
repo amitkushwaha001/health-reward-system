@@ -2,6 +2,9 @@ const User = require('../models/User');
 const Step = require('../models/Step');
 const Reward = require('../models/Reward');
 const Redemption = require('../models/Redemption');
+const mongoose = require('mongoose');
+const Recommendation = require('../models/Recommendation');
+const AIConversation = require('../models/AIConversation');
 
 // @desc Get admin dashboard stats
 // @route GET /api/admin/dashboard
@@ -31,12 +34,26 @@ const getDashboardStats = async (req, res, next) => {
   }
 };
 
+const getAdminRewards = async (req, res, next) => {
+  try {
+    const rewards = await Reward.find().sort({ createdAt: -1 }).lean();
+    res.status(200).json({ success: true, count: rewards.length, data: rewards });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc Get all users
 // @route GET /api/admin/users
 // @access Private/Admin
 const getUsers = async (req, res, next) => {
   try {
     const { search, page = 1, limit = 10 } = req.query;
+    const pageNumber = Number(page);
+    const limitNumber = Number(limit);
+    if (!Number.isInteger(pageNumber) || pageNumber < 1 || !Number.isInteger(limitNumber) || limitNumber < 1 || limitNumber > 100) {
+      return res.status(400).json({ success: false, message: 'page and limit must be valid positive integers (limit max 100)' });
+    }
 
     let filter = { role: 'user' };
 
@@ -44,17 +61,17 @@ const getUsers = async (req, res, next) => {
       filter = {
         ...filter,
         $or: [
-          { name: { $regex: search, $options: 'i' } },
-          { email: { $regex: search, $options: 'i' } },
+          { name: { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } },
+          { email: { $regex: search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' } },
         ],
       };
     }
 
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (pageNumber - 1) * limitNumber;
     const users = await User.find(filter)
       .select('-password')
       .skip(skip)
-      .limit(parseInt(limit))
+      .limit(limitNumber)
       .sort({ createdAt: -1 });
 
     const totalUsers = await User.countDocuments(filter);
@@ -63,7 +80,7 @@ const getUsers = async (req, res, next) => {
       success: true,
       count: users.length,
       total: totalUsers,
-      pages: Math.ceil(totalUsers / limit),
+      pages: Math.ceil(totalUsers / limitNumber),
       data: users,
     });
   } catch (error) {
@@ -76,16 +93,32 @@ const getUsers = async (req, res, next) => {
 // @access Private/Admin
 const deleteUser = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+
     const user = await User.findById(req.params.id);
 
     if (!user) {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
 
-    // Delete user and related data
-    await User.findByIdAndDelete(req.params.id);
-    await Step.deleteMany({ userId: req.params.id });
-    await Redemption.deleteMany({ userId: req.params.id });
+    if (user.role !== 'user' || user._id.toString() === req.user.id) {
+      return res.status(400).json({ success: false, message: 'Only another user account can be deleted here' });
+    }
+
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        await Step.deleteMany({ userId: req.params.id }, { session });
+        await Redemption.deleteMany({ userId: req.params.id }, { session });
+        await Recommendation.deleteMany({ userId: req.params.id }, { session });
+        await AIConversation.deleteMany({ userId: req.params.id }, { session });
+        await User.deleteOne({ _id: req.params.id }, { session });
+      });
+    } finally {
+      await session.endSession();
+    }
 
     res.status(200).json({
       success: true,
@@ -101,6 +134,10 @@ const deleteUser = async (req, res, next) => {
 // @access Private/Admin
 const blockUser = async (req, res, next) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid user ID' });
+    }
+
     const user = await User.findById(req.params.id);
 
     if (!user) {
@@ -160,10 +197,10 @@ const updateReward = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Reward not found' });
     }
 
-    if (title) reward.title = title;
-    if (pointsRequired) reward.pointsRequired = pointsRequired;
-    if (value) reward.value = value;
-    if (description) reward.description = description;
+    if (title !== undefined) reward.title = title;
+    if (pointsRequired !== undefined) reward.pointsRequired = pointsRequired;
+    if (value !== undefined) reward.value = value;
+    if (description !== undefined) reward.description = description;
     if (isActive !== undefined) reward.isActive = isActive;
 
     await reward.save();
@@ -254,6 +291,7 @@ const getReports = async (req, res, next) => {
 
 module.exports = {
   getDashboardStats,
+  getAdminRewards,
   getUsers,
   deleteUser,
   blockUser,

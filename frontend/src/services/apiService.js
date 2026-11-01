@@ -34,10 +34,28 @@ export const leaderboardService = {
   getUserRank: () => api.get('/leaderboard/user-rank'),
 };
 
+export const analyticsService = {
+  getActivity: (params) => api.get('/analytics/activity', { params }),
+};
+
+export const aiService = {
+  getInsights: () => api.get('/ai/insights'),
+  getChatHistory: () => api.get('/ai/chat/history'),
+  sendMessage: (message) => api.post('/ai/chat', { message }),
+};
+
+export const recommendationService = {
+  generate: () => api.post('/ai/recommendations/generate'),
+  getToday: () => api.get('/ai/recommendations'),
+  getHistory: (params) => api.get('/ai/recommendations/history', { params }),
+  updateStatus: (id, status) => api.patch(`/ai/recommendations/${id}/status`, { status }),
+};
+
 // Admin Services
 export const adminService = {
   getDashboard: () => api.get('/admin/dashboard'),
   getUsers: (params) => api.get('/admin/users', { params }),
+  getRewards: () => api.get('/admin/rewards'),
   deleteUser: (id) => api.delete(`/admin/user/${id}`),
   blockUser: (id) => api.patch(`/admin/block/${id}`),
   createReward: (data) => api.post('/admin/rewards', data),

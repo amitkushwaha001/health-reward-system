@@ -35,17 +35,9 @@ jobs:
         working-directory: backend
         run: npm ci
 
-      - name: Run backend tests only if configured
+      - name: Run backend tests
         working-directory: backend
-        shell: bash
-        run: |
-          TEST_SCRIPT=$(node -p "require('./package.json').scripts && require('./package.json').scripts.test || ''")
-          if [ -n "$TEST_SCRIPT" ]; then
-            echo "Running backend tests..."
-            npm test -- --watch=false
-          else
-            echo "::notice::No backend test script configured; skipping backend tests."
-          fi
+        run: npm test
 
   frontend:
     name: Frontend checks
@@ -70,16 +62,9 @@ jobs:
         working-directory: frontend
         run: npm ci
 
-      - name: Run frontend tests only if files exist
+      - name: Run frontend tests
         working-directory: frontend
-        shell: bash
-        run: |
-          if find src -type f \( -path '*/__tests__/*' -o -name '*.test.js' -o -name '*.test.jsx' -o -name '*.test.ts' -o -name '*.test.tsx' -o -name '*.spec.js' -o -name '*.spec.jsx' -o -name '*.spec.ts' -o -name '*.spec.tsx' \) -print -quit | grep -q .; then
-            echo "Running frontend tests..."
-            CI=true npm test -- --watchAll=false
-          else
-            echo "::notice::No frontend test files found; skipping frontend tests."
-          fi
+        run: npm test -- --watchAll=false
 
       - name: Run frontend lint only if configured
         working-directory: frontend

@@ -1,6 +1,7 @@
 const express = require('express');
 const {
   getDashboardStats,
+  getAdminRewards,
   getUsers,
   deleteUser,
   blockUser,
@@ -19,6 +20,7 @@ router.use(authorize('admin'));
 
 // Dashboard
 router.get('/dashboard', getDashboardStats);
+router.get('/rewards', getAdminRewards);
 
 // Users management
 router.get('/users', getUsers);

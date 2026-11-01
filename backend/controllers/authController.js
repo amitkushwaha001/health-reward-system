@@ -18,7 +18,8 @@ const register = async (req, res, next) => {
     }
 
     // Check if user already exists
-    let user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    let user = await User.findOne({ email: normalizedEmail });
     if (user) {
       return res.status(400).json({ success: false, message: 'User already exists' });
     }
@@ -26,7 +27,7 @@ const register = async (req, res, next) => {
     // Create user
     user = await User.create({
       name,
-      email,
+      email: normalizedEmail,
       password,
       role: 'user',
     });
@@ -51,7 +52,7 @@ const login = async (req, res, next) => {
     }
 
     // Check for user
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email: email.trim().toLowerCase() }).select('+password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }

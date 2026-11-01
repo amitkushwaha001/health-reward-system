@@ -73,10 +73,10 @@ npm start
 ```bash
 # Terminal 3
 cd backend
-node seed.js
+NODE_ENV=development SEED_DEMO_DATA=true node seed.js
 ```
 
-✅ Sample users, steps, and rewards created!
+⚠️ This opt-in seed command deletes and recreates the demo dataset. Use it only with a disposable local database, never with production or real user data.
 
 ## 🎯 Test the Application
 
