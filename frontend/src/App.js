@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header, Footer } from './components/Shared';
+import { HomePage } from './pages/HomePage';
 
 // Pages
 import { Register, Login } from './pages/AuthPages';
@@ -74,7 +75,7 @@ function AppRoutes() {
         {/* Public Routes */}
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} />} />
+        <Route path="/" element={user ? <Navigate to="/dashboard" /> : <HomePage />} />
 
         {/* Protected User Routes */}
         <Route
