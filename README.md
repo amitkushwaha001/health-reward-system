@@ -1,6 +1,8 @@
 # Health Rewards
 
-**Make every step count.** Health Rewards is a full-stack wellness app for logging daily steps, earning points, exploring rewards, and keeping track of your progress.
+**Make every step count.** Health Rewards is a full-stack wellness and rewards platform that turns manually logged daily movement into a simple progress journey. People can record steps, see how their activity adds up, earn points, and browse rewards, while administrators manage the reward catalog and keep an eye on platform activity.
+
+The project brings together a React web app, an Express REST API, and MongoDB. Its goal is to make everyday movement feel more motivating: a user logs activity, sees points calculated from their steps, follows progress in their dashboard, and decides whether to redeem points from the available catalog. Admin tools provide a separate, role-restricted workspace for users, rewards, and reports.
 
 <p align="center">
   <img src="docs/assets/health-rewards-overview.svg" alt="Illustration of the Health Rewards journey: log movement, earn points, and explore rewards" width="100%">
@@ -8,14 +10,34 @@
 
 > **Illustration, not a product screenshot.** The visual above summarizes the app's movement-to-rewards flow.
 
-## What you can do
+## Project description
 
-- **Track steps:** add, edit, and review step records.
-- **Earn points:** points are calculated from steps using the configured steps-to-points ratio (100 steps per point by default).
-- **Explore rewards:** browse the reward catalog, redeem available points, and view redemption history.
-- **See your progress:** use the dashboard, activity analytics, and leaderboard.
-- **Manage the app:** role-restricted admin pages support user and reward management, reports, and dashboard summaries.
-- **Get wellness guidance:** the app includes insight, recommendation, and chat routes.
+Health Rewards is designed for people who want a lightweight way to connect activity tracking with a reward goal. It does not automatically collect steps from a phone, watch, or external health service: users enter their step records in the app. Those records feed personal summaries and points, and users can explore the catalog and track their redemption history.
+
+The application also includes activity insights, recommendations, and a chat-style assistant based on in-app records. These features are informational, not medical advice; projections are estimates, and the assistant does not redeem rewards or change account settings. Admin-only pages provide tools for managing users and rewards and viewing reports.
+
+### User journey
+
+1. **Create an account and sign in.** User and admin experiences are role-restricted.
+2. **Log daily steps.** Add a record and review or update step history.
+3. **Follow progress.** Check points, activity analytics, leaderboard placement, and available balance.
+4. **Choose a reward.** Browse available rewards, redeem points, and review redemption history.
+5. **Review wellness guidance.** Explore activity-based insights and recommendations at your own discretion.
+
+### Feature overview
+
+| Area | Description |
+| --- | --- |
+| Activity tracking | Record daily step counts and review, edit, or delete entries. |
+| Points | Earn points from logged steps using the configured ratio. |
+| Rewards | Browse the active catalog, redeem an eligible reward, and check past redemptions. |
+| Progress | View dashboard summaries, activity analytics, and leaderboard rankings. |
+| Wellness guidance | Review activity-based insights, recommendations, and chat responses; informational only. |
+| Administration | Manage users and rewards, view dashboard statistics, and access reports. |
+
+### Points at a glance
+
+The default conversion is **100 steps = 1 point**. The ratio can be configured with the backend's `STEPS_TO_POINTS_RATIO` environment variable. Points are rounded down per step record (for example, 250 steps earns 2 points at the default ratio); this is a rewards mechanic, not a measure of health or fitness.
 
 ## Technology
 
