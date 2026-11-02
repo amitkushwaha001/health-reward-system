@@ -1,0 +1,6 @@
+*.tar
+.env
+node_modules/
+build/
+k8s/backend-secret.yml
+k8s/backend-secret.yml

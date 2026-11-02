@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: health-backend
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: health-backend
+
+  template:
+    metadata:
+      labels:
+        app: health-backend
+
+    spec:
+      containers:
+        - name: health-backend
+          image: health-reward-system-backend:latest
+          imagePullPolicy: Never
+
+          ports:
+            - containerPort: 5000
+
+          envFrom:
+            - configMapRef:
+                name: health-backend-config
+
+            - secretRef:
+                name: health-backend-secret
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
