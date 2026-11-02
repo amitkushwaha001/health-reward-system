@@ -165,7 +165,7 @@ Each file contains Express Router with specific endpoints for its domain.
 #### `/pages`
 **AuthPages.jsx**
 - `<Register />` - Registration form
-- `<Login />` - Login form with demo credentials
+- `<Login />` - Role-specific login form
 
 **Dashboard.jsx**
 - `<Dashboard />` - Main user dashboard

@@ -99,9 +99,10 @@ cd backend
 node seed.js
 ```
 
-### Demo Credentials
+### Sample User Login
 - **User:** john@example.com / password123
-- **Admin:** admin@healthreward.com / AdminPassword123
+
+Admin accounts must be provisioned through the trusted account-management process.
 
 ## 📊 Reward System
 

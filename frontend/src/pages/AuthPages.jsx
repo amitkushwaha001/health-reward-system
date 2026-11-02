@@ -154,6 +154,7 @@ export const Register = () => {
 export const Login = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const [selectedRole, setSelectedRole] = useState(null);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -176,8 +177,14 @@ export const Login = () => {
     try {
       const response = await authService.login(formData);
       const { token, user } = response.data;
+
+      if (user.role !== selectedRole) {
+        setError('The selected login option does not match this account. Choose the correct option and try again.');
+        return;
+      }
+
       login(user, token);
-      
+
       if (user.role === 'admin') {
         navigate('/admin');
       } else {
@@ -193,103 +200,67 @@ export const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>Login</h1>
+        <h1>{selectedRole ? `${selectedRole === 'admin' ? 'Admin' : 'User'} Login` : 'Choose your login'}</h1>
         {error && <div className="alert alert-error">{error}</div>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {selectedRole ? (
+          <>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="login-email">Email</label>
+                <input
+                  id="login-email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+              <div className="form-group">
+                <label htmlFor="login-password">Password</label>
+                <input
+                  id="login-password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
 
-          <button type="submit" className="btn btn-primary" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+              <button type="submit" className="btn btn-primary" disabled={loading}>
+                {loading ? 'Logging in...' : `Login as ${selectedRole === 'admin' ? 'Admin' : 'User'}`}
+              </button>
+            </form>
+            <button
+              type="button"
+              className="btn btn-outline login-option-back"
+              onClick={() => {
+                setSelectedRole(null);
+                setError('');
+              }}
+              disabled={loading}
+            >
+              Choose another login option
+            </button>
+          </>
+        ) : (
+          <div className="login-options">
+            <button type="button" className="btn btn-primary" onClick={() => setSelectedRole('admin')}>
+              Admin Login
+            </button>
+            <button type="button" className="btn btn-outline" onClick={() => setSelectedRole('user')}>
+              User Login
+            </button>
+          </div>
+        )}
 
         <p>
           Don't have an account? <a href="/register">Register</a>
         </p>
-
-        <div className="demo-info">
-          <p><strong>Demo Credentials:</strong></p>
-          <p>User: john@example.com / password123</p>
-          <p>Admin: admin@healthreward.com / AdminPassword123</p>
-        </div>
       </div>
-
-      <style jsx>{`
-        .auth-container {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          padding: 20px;
-        }
-
-        .auth-card {
-          background: white;
-          border-radius: 12px;
-          padding: 40px;
-          width: 100%;
-          max-width: 400px;
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .auth-card h1 {
-          text-align: center;
-          margin-bottom: 30px;
-          color: #10b981;
-        }
-
-        .auth-card p {
-          text-align: center;
-          margin-top: 20px;
-          color: #6b7280;
-        }
-
-        .auth-card a {
-          color: #10b981;
-          text-decoration: none;
-          font-weight: 600;
-        }
-
-        .demo-info {
-          background: #f0fdf4;
-          border: 1px solid #dcfce7;
-          border-radius: 8px;
-          padding: 15px;
-          margin-top: 20px;
-          font-size: 12px;
-        }
-
-        .demo-info p {
-          margin: 5px 0;
-          text-align: left;
-        }
-
-        .btn {
-          width: 100%;
-        }
-      `}</style>
     </div>
   );
 };

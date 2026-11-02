@@ -245,11 +245,12 @@ See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) - Database Schema section.
 
 ---
 
-## 🎯 Demo Credentials
+## 🎯 Sample User Login
 
 After seeding sample data:
 - **User**: john@example.com / password123
-- **Admin**: admin@healthreward.com / AdminPassword123
+
+Admin accounts must be provisioned through the trusted account-management process.
 
 ---
 
@@ -289,7 +290,7 @@ After seeding sample data:
 After setup, verify:
 - [ ] Backend running on port 5000
 - [ ] Frontend running on port 3000
-- [ ] Can login with demo credentials
+- [ ] Can login with the seeded sample user
 - [ ] Dashboard displays correctly
 - [ ] Can add steps and see points calculated
 - [ ] Can view leaderboard
