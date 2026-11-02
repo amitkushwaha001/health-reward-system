@@ -28,12 +28,6 @@ const seedDatabase = async () => {
     // Create sample users
     const users = await User.create([
       {
-        name: 'Admin User',
-        email: 'admin@healthreward.com',
-        password: 'AdminPassword123',
-        role: 'admin',
-      },
-      {
         name: 'John Doe',
         email: 'john@example.com',
         password: 'password123',
@@ -130,43 +124,43 @@ const seedDatabase = async () => {
     // Create sample steps
     const steps = await Step.create([
       {
-        userId: users[1]._id,
+        userId: users[0]._id,
         date: new Date('2024-05-25'),
         steps: 8500,
         pointsEarned: 85,
       },
       {
-        userId: users[1]._id,
+        userId: users[0]._id,
         date: new Date('2024-05-26'),
         steps: 9200,
         pointsEarned: 92,
       },
       {
-        userId: users[2]._id,
+        userId: users[1]._id,
         date: new Date('2024-05-25'),
         steps: 7800,
         pointsEarned: 78,
       },
       {
-        userId: users[2]._id,
+        userId: users[1]._id,
         date: new Date('2024-05-26'),
         steps: 8100,
         pointsEarned: 81,
       },
       {
-        userId: users[3]._id,
+        userId: users[2]._id,
         date: new Date('2024-05-25'),
         steps: 6500,
         pointsEarned: 65,
       },
       {
-        userId: users[4]._id,
+        userId: users[3]._id,
         date: new Date('2024-05-25'),
         steps: 10000,
         pointsEarned: 100,
       },
       {
-        userId: users[4]._id,
+        userId: users[3]._id,
         date: new Date('2024-05-26'),
         steps: 9500,
         pointsEarned: 95,

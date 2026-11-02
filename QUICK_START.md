@@ -80,24 +80,21 @@ NODE_ENV=development SEED_DEMO_DATA=true node seed.js
 
 ## 🎯 Test the Application
 
-### Demo Credentials
+### Sample User Login
 
 After seeding, login with:
 
-**Regular User:**
 - Email: `john@example.com`
 - Password: `password123`
 
-**Admin User:**
-- Email: `admin@healthreward.com`
-- Password: `AdminPassword123`
+Admin accounts must be provisioned through the trusted account-management process.
 
 ## ✅ Verification Checklist
 
 - [ ] Backend running on port 5000
 - [ ] Frontend running on port 3000
 - [ ] No CORS errors in browser console
-- [ ] Can login with demo credentials
+- [ ] Can login with the seeded sample user
 - [ ] Dashboard displays user data
 - [ ] Can add steps and see points calculated
 
@@ -157,7 +154,7 @@ npm install
 
 ## 🎉 Success!
 
-If you can see the dashboard and login with demo credentials, the application is running successfully!
+If you can see the dashboard after logging in with the seeded sample user, the application is running successfully!
 
 ---
 

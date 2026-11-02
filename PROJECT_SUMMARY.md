@@ -206,7 +206,6 @@ A fully functional, production-ready application for fitness gamification and re
 ## 📊 Sample Data Included
 
 ### Demo Users
-- 1 Admin User (admin@healthreward.com)
 - 9 Regular Users (john@example.com, jane@example.com, etc.)
 
 ### Sample Data
@@ -307,7 +306,7 @@ node seed.js
 
 ### 3. Test Application
 - Open http://localhost:3000
-- Login with demo credentials
+- Login with a seeded sample user
 - Test all features
 
 ### 4. Explore Code

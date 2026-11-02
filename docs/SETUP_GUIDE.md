@@ -545,20 +545,16 @@ NODE_ENV=development SEED_DEMO_DATA=true node seed.js
 This command deletes and recreates the demo dataset. Use only with a disposable local development database; never use it with production or real user data.
 
 This will create:
-- 1 Admin user
 - 9 Sample regular users
 - Sample step records
 - Sample reward entries
 
-### Demo Credentials
+### Sample User Login
 
-**Regular User:**
 - Email: `john@example.com`
 - Password: `password123`
 
-**Admin User:**
-- Email: `admin@healthreward.com`
-- Password: `AdminPassword123`
+Admin accounts must be provisioned through the trusted account-management process.
 
 ---
 
