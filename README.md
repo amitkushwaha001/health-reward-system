@@ -6,6 +6,10 @@ The project brings together a React web app, an Express REST API, and MongoDB. I
 
 <p align="center">
   <img src="docs/assets/health-rewards-overview.svg" alt="Illustration of the Health Rewards journey: log movement, earn points, and explore rewards" width="100%">
+  <img width="1888" height="862" alt="image" src="https://github.com/user-attachments/assets/5c6e6969-980d-454f-9b40-a2ab638ccc2e" />
+  <img width="1910" height="867" alt="image" src="https://github.com/user-attachments/assets/da84d556-05c4-45c6-b816-ac3838aea89e" />
+
+
 </p>
 
 > **Illustration, not a product screenshot.** The visual above summarizes the app's movement-to-rewards flow.
