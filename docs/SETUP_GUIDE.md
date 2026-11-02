@@ -556,6 +556,20 @@ This will create:
 
 Admin accounts must be provisioned through the trusted account-management process.
 
+### One-time admin password reset
+
+The interactive reset utility updates only the existing account whose email is configured in `backend/scripts/resetAdminPassword.js`. It sets that account's role to `admin`; the `User` model hashes the new password with bcryptjs when the record is saved. It aborts if the account does not exist, requires confirmation of the email, and reads the new password twice without echoing it. It does not create accounts, change other user records, print the MongoDB URI, or add a public API route.
+
+Run it from a trusted interactive terminal with Node.js dependencies installed and `MONGODB_URI` set to the intended Atlas database. Locally, you can use the existing ignored `backend/.env` file and run this from the repository root:
+
+```bash
+npm --prefix backend run reset-admin
+```
+
+You do not need VS Code. If the deployed Render backend has the Shell feature available, first deploy the reviewed reset utility through your normal release process, open that backend service's Shell, and run `npm run reset-admin` from its configured backend root (or `npm --prefix backend run reset-admin` from the repository root). Verify that the service is connected to the intended Atlas database before confirming. Never put the MongoDB URI or password in the command, source code, or chat. Choose a new password of at least 12 characters; do not reuse any password shared in chat. Do not run `seed.js` against production.
+
+After the reset, remove the utility and its npm command in a follow-up source change and release if the deployed copy is no longer needed. It is not a public endpoint, but anyone with access to the backend shell can run it again.
+
 ---
 
 ## 🔧 Troubleshooting
