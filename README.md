@@ -1,305 +1,145 @@
-# Health Reward Management System - README
+# Health Rewards
 
-A complete, production-ready MERN Stack application for managing health rewards and tracking fitness activities.
+**Make every step count.** Health Rewards is a full-stack wellness app for logging daily steps, earning points, exploring rewards, and keeping track of your progress.
 
-## 🎯 Features
+<p align="center">
+  <img src="docs/assets/health-rewards-overview.svg" alt="Illustration of the Health Rewards journey: log movement, earn points, and explore rewards" width="100%">
+</p>
 
-### User Features
-- ✅ **User Registration & Login** - Secure JWT authentication
-- ✅ **Dashboard** - View stats, points, and recent activity
-- ✅ **Step Management** - Log, edit, and delete daily steps
-- ✅ **Reward Redemption** - Redeem points for cash, vouchers, tickets, and coupons
-- ✅ **Leaderboard** - View top 10 users by points
-- ✅ **Profile Management** - Update profile and change password
-- ✅ **Wallet & History** - Track points and redemptions
+> **Illustration, not a product screenshot.** The visual above summarizes the app's movement-to-rewards flow.
 
-### Admin Features
-- ✅ **Admin Dashboard** - View system statistics
-- ✅ **User Management** - View, block, and delete users
-- ✅ **Reward Management** - Create, edit, and delete rewards
-- ✅ **Reports & Analytics** - User activity, transactions, and redemption statistics
+## What you can do
 
-## 🛠️ Tech Stack
+- **Track steps:** add, edit, and review step records.
+- **Earn points:** points are calculated from steps using the configured steps-to-points ratio (100 steps per point by default).
+- **Explore rewards:** browse the reward catalog, redeem available points, and view redemption history.
+- **See your progress:** use the dashboard, activity analytics, and leaderboard.
+- **Manage the app:** role-restricted admin pages support user and reward management, reports, and dashboard summaries.
+- **Get wellness guidance:** the app includes insight, recommendation, and chat routes.
 
-### Frontend
-- **React.js** - UI library
-- **React Router** - Client-side routing
-- **Axios** - HTTP client
-- **CSS3** - Responsive styling
+## Technology
 
-### Backend
-- **Node.js** - JavaScript runtime
-- **Express.js** - Web framework
-- **MongoDB** - NoSQL database
-- **Mongoose** - ODM
-- **JWT** - Authentication
-- **bcryptjs** - Password hashing
+| Area | Stack |
+| --- | --- |
+| Frontend | React 18, React Router, Axios, Chart.js |
+| Backend | Node.js, Express, Mongoose |
+| Data | MongoDB |
+| Authentication | JSON Web Tokens and bcryptjs |
 
-## 📁 Project Structure
+## How it fits together
 
-```
-health-reward-system/
-├── backend/
-│   ├── models/              # MongoDB schemas
-│   ├── controllers/         # Business logic
-│   ├── routes/             # API endpoints
-│   ├── middleware/         # Auth & error handling
-│   ├── config/             # Database & constants
-│   ├── utils/              # Helper functions
-│   ├── server.js           # Main server file
-│   ├── seed.js             # Database seeding
-│   ├── package.json
-│   └── .env.example
-│
-├── frontend/
-│   ├── src/
-│   │   ├── pages/          # Page components
-│   │   ├── components/     # Reusable components
-│   │   ├── services/       # API calls
-│   │   ├── context/        # Auth context
-│   │   ├── styles/         # CSS
-│   │   ├── App.js
-│   │   └── index.js
-│   ├── public/
-│   ├── package.json
-│   └── .env.example
-│
-└── docs/
-    └── SETUP_GUIDE.md      # Complete setup instructions
+```text
+React app (frontend/) ── REST API ── Express app (backend/) ── MongoDB
+                                      ├── Authentication and user profiles
+                                      ├── Steps, points, rewards, and redemptions
+                                      ├── Leaderboard and activity analytics
+                                      ├── Admin operations
+                                      └── Insights, recommendations, and chat
 ```
 
-## 🚀 Quick Start
+```text
+.
+├── backend/                 # API, models, business logic, and tests
+├── frontend/                # React application
+├── docs/                    # Setup, architecture, and development guides
+│   └── assets/              # README illustration
+├── k8s/                     # Kubernetes manifests
+├── nginx/                   # Nginx configuration
+├── docker-compose.yml       # Container orchestration
+└── .github/workflows/       # CI and repository workflows
+```
+
+## Run locally
 
 ### Prerequisites
-- Node.js v14+ and npm
-- MongoDB (local or MongoDB Atlas)
 
-### Installation
+- Node.js 20 (the version used by CI) and npm
+- MongoDB, local or hosted, with a database available to the backend
 
-1. **Backend Setup**
+### 1. Configure and start the backend
+
 ```bash
 cd backend
-npm install
-cp .env.example .env
-# Edit .env with your MongoDB URI and JWT secret
-npm run dev  # or node server.js
+npm ci
 ```
 
-2. **Frontend Setup**
+Copy `backend/.env.example` to `backend/.env`, then set the required `MONGODB_URI` and a private `JWT_SECRET` of at least 32 characters. Keep `.env` local and never commit real credentials.
+
+```bash
+npm run dev
+```
+
+The backend listens on port 5000 by default.
+
+### 2. Configure and start the frontend
+
+In another terminal:
+
 ```bash
 cd frontend
-npm install
-echo "REACT_APP_API_BASE_URL=http://localhost:5000/api" > .env
+npm ci
+```
+
+Set `REACT_APP_API_BASE_URL` in the frontend's local environment to point to your backend API, then run:
+
+```bash
 npm start
 ```
 
-3. **Seed Sample Data (Optional)**
+Open the frontend at `http://localhost:3000`.
+
+### Optional demo data
+
+`backend/seed.js` is an opt-in development utility that **deletes and recreates** the demo users, steps, and rewards collections. Only use it with a disposable local development database, never with production or real user data. It requires `NODE_ENV=development` and `SEED_DEMO_DATA=true`; see [Environment setup](docs/ENVIRONMENT_SETUP.md) before running it. No demo passwords are published in this README.
+
+## API overview
+
+The API is mounted under `/api`. Main route groups:
+
+| Route | Purpose |
+| --- | --- |
+| `/api/auth` | Registration, login, and authentication profile |
+| `/api/user` | User profile and password management |
+| `/api/steps` | Step entry and history |
+| `/api/rewards` | Reward catalog, redemption, and redemption history |
+| `/api/leaderboard` | Rankings and user rank |
+| `/api/analytics` | Activity analytics |
+| `/api/admin` | Admin dashboard, users, rewards, and reports |
+| `/api/ai` | Insights, recommendations, and chat |
+
+See the [setup guide](docs/SETUP_GUIDE.md) for additional API and configuration details.
+
+## Tests and CI
+
+Run the project checks from their respective directories:
+
 ```bash
+# Backend tests
 cd backend
-node seed.js
-```
+npm test
 
-### Sample User Login
-- **User:** john@example.com / password123
+# Frontend tests
+cd frontend
+npm test -- --watchAll=false
 
-Admin accounts must be provisioned through the trusted account-management process.
-
-## 📊 Reward System
-
-### Points Calculation
-- **100 Steps = 1 Reward Point**
-
-Examples:
-- 1,000 steps = 10 points
-- 5,000 steps = 50 points
-- 10,000 steps = 100 points
-
-### Reward Categories
-| Category | Points | Value | Currency |
-|----------|--------|-------|----------|
-| Cash | 100 | ₹10 | ₹ |
-| Movie Ticket | 500 | 1 | Ticket |
-| Shopping Voucher | 1000 | ₹100 | ₹ |
-| Food Coupon | 300 | ₹50 | ₹ |
-
-## 🔐 Security Features
-
-- ✅ JWT-based authentication
-- ✅ Password hashing with bcryptjs
-- ✅ Protected API routes with middleware
-- ✅ CORS enabled
-- ✅ Role-based access control (User/Admin)
-- ✅ Input validation
-
-## 📡 API Endpoints
-
-### Authentication
-- `POST /api/auth/register` - Register new user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/profile` - Get user profile
-
-### Steps
-- `POST /api/steps/add` - Add new steps
-- `GET /api/steps/history` - Get step history
-- `PUT /api/steps/update/:id` - Update steps
-- `DELETE /api/steps/delete/:id` - Delete steps
-
-### Rewards
-- `GET /api/rewards` - Get all available rewards
-- `POST /api/rewards/redeem` - Redeem a reward
-- `GET /api/rewards/history` - Get redemption history
-
-### Leaderboard
-- `GET /api/leaderboard` - Get top 10 users
-- `GET /api/leaderboard/user-rank` - Get user's rank
-
-### Admin
-- `GET /api/admin/dashboard` - Admin dashboard stats
-- `GET /api/admin/users` - Get all users (with search)
-- `DELETE /api/admin/user/:id` - Delete user
-- `PATCH /api/admin/block/:id` - Block/unblock user
-- `GET /api/admin/reports` - Get reports
-
-For detailed API documentation, see [SETUP_GUIDE.md](./docs/SETUP_GUIDE.md)
-
-## 🎨 Features Highlights
-
-### User Dashboard
-- Display total steps, points, available points, and redeemed points
-- Quick action buttons for common tasks
-- Recent activity log
-
-### Step Tracking
-- Add steps with date selection
-- Real-time point calculation
-- Edit and delete functionality
-- Step history with filters
-
-### Reward System
-- Browse available rewards with descriptions
-- Points balance check before redemption
-- Unique redemption codes for tracking
-- Full redemption history
-
-### Leaderboard
-- Top 10 users ranking
-- User rank and statistics
-- Points and steps comparison
-
-### Admin Panel
-- System-wide statistics
-- User management with search
-- Reward creation and management
-- Detailed reports and analytics
-
-## 🌐 Responsive Design
-
-The application is fully responsive and works on:
-- Desktop (1920px and above)
-- Tablet (768px - 1024px)
-- Mobile (below 768px)
-
-## 📈 Database Collections
-
-1. **Users** - User accounts and statistics
-2. **Steps** - Daily step records
-3. **Rewards** - Available reward offers
-4. **Redemptions** - User reward redemptions
-
-## 🔄 Workflow
-
-1. **User Registration** → Account created with 0 points
-2. **Log Steps** → Points automatically calculated (100 steps = 1 point)
-3. **Accumulate Points** → Total and available points increase
-4. **Redeem Reward** → Select reward, points deducted, code generated
-5. **Track Progress** → View leaderboard and analytics
-
-## 🛣️ Routing
-
-### Public Routes
-- `/register` - User registration page
-- `/login` - User login page
-
-### Protected Routes (User)
-- `/dashboard` - Main user dashboard
-- `/steps` - Step management
-- `/rewards` - Reward redemption
-- `/redemption-history` - View redeemed rewards
-- `/leaderboard` - User rankings
-- `/profile` - User profile
-
-### Protected Routes (Admin)
-- `/admin` - Admin dashboard
-- `/admin/users` - User management
-- `/admin/rewards` - Reward management
-- `/admin/reports` - Reports
-
-## 📝 Environment Variables
-
-### Backend
-```
-MONGODB_URI=mongodb+srv://...
-PORT=5000
-NODE_ENV=development
-JWT_SECRET=your_secret_key
-JWT_EXPIRE=7d
-STEPS_TO_POINTS_RATIO=100
-```
-
-### Frontend
-```
-REACT_APP_API_BASE_URL=http://localhost:5000/api
-```
-
-## 🚢 Deployment
-
-### Backend (Heroku/Railway)
-```bash
-# Add Procfile
-web: node server.js
-
-# Deploy
-git push heroku main
-```
-
-### Frontend (Vercel/Netlify)
-```bash
+# Frontend production build
 npm run build
-# Deploy build folder
 ```
 
-## 📚 Documentation
+The GitHub Actions workflow runs backend and frontend tests and builds the frontend; pull requests to `main` also run dependency review. There is no separate frontend lint script configured.
 
-- [Complete Setup Guide](./docs/SETUP_GUIDE.md) - Detailed installation and configuration
-- [API Reference](./docs/SETUP_GUIDE.md#-api-documentation) - All API endpoints
-- [Database Schema](./docs/SETUP_GUIDE.md#-database-schema) - Collection structures
+## Deployment assets
 
-## ✨ Future Enhancements
+The repository includes Docker Compose, Nginx configuration, and Kubernetes manifests. These are deployment assets, not a guarantee of a configured hosted deployment: review their settings, provide the required environment configuration and MongoDB service, and verify them in your own environment before use.
 
-- [ ] Email notifications for rewards
-- [ ] Social sharing features
-- [ ] Mobile app (React Native)
-- [ ] Payment gateway integration
-- [ ] Advanced analytics charts
-- [ ] Push notifications
-- [ ] Wearable device integration
-- [ ] Referral system
+## Contributing
 
-## 🐛 Troubleshooting
+1. Create a focused branch and make your change.
+2. Run the relevant backend tests, frontend tests, and build.
+3. Open a pull request with a concise description and verification notes.
 
-See [SETUP_GUIDE.md - Troubleshooting](./docs/SETUP_GUIDE.md#-troubleshooting) for common issues and solutions.
+For code conventions and workflows, see the [development guide](docs/DEVELOPMENT_GUIDE.md). For system structure, see [architecture](docs/ARCHITECTURE.md).
 
-## 📄 License
+## Possible next steps
 
-MIT License © 2024
-
-## 🤝 Contributing
-
-Feel free to fork, modify, and use this project for your needs.
-
----
-## Learning Git Pull
-This line was added from GitHub website.
-**Made with ❤️ for Health & Fitness**
-
-For questions or issues, refer to the setup documentation or check API response error messages.
+Ideas for future work—not features currently promised here—include wearable integrations, notifications, and additional analytics.
