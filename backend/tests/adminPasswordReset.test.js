@@ -3,7 +3,11 @@ const assert = require('node:assert/strict');
 const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const User = require('../models/User');
-const { resetAdminAccount, TARGET_EMAIL } = require('../scripts/resetAdminPassword');
+const {
+  getWorkflowPassword,
+  resetAdminAccount,
+  TARGET_EMAIL,
+} = require('../scripts/resetAdminPassword');
 
 let mongo;
 
@@ -67,4 +71,40 @@ test('rejects reusing the existing password', async () => {
   );
   const target = await User.findOne({ email: TARGET_EMAIL });
   assert.equal(target.role, 'user');
+});
+
+test('accepts a password secret only in Actions with exact account confirmation', () => {
+  assert.equal(getWorkflowPassword({
+    GITHUB_ACTIONS: 'true',
+    ADMIN_RESET_CONFIRM_EMAIL: TARGET_EMAIL,
+    ADMIN_RESET_PASSWORD: 'workflow-test-password',
+  }), 'workflow-test-password');
+});
+
+test('rejects workflow password secrets outside Actions', () => {
+  assert.throws(
+    () => getWorkflowPassword({ ADMIN_RESET_PASSWORD: 'workflow-test-password' }),
+    /only in GitHub Actions/
+  );
+});
+
+test('rejects an incorrect workflow account confirmation', () => {
+  assert.throws(
+    () => getWorkflowPassword({
+      GITHUB_ACTIONS: 'true',
+      ADMIN_RESET_CONFIRM_EMAIL: 'someone-else@example.com',
+      ADMIN_RESET_PASSWORD: 'workflow-test-password',
+    }),
+    /confirmation did not match/
+  );
+});
+
+test('rejects a missing Actions password secret', () => {
+  assert.throws(
+    () => getWorkflowPassword({
+      GITHUB_ACTIONS: 'true',
+      ADMIN_RESET_CONFIRM_EMAIL: TARGET_EMAIL,
+    }),
+    /password secret is missing/
+  );
 });

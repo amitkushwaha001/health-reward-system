@@ -558,7 +558,7 @@ Admin accounts must be provisioned through the trusted account-management proces
 
 ### One-time admin password reset
 
-The interactive reset utility updates only the existing account whose email is configured in `backend/scripts/resetAdminPassword.js`. It sets that account's role to `admin`; the `User` model hashes the new password with bcryptjs when the record is saved. It aborts if the account does not exist, requires confirmation of the email, and reads the new password twice without echoing it. It does not create accounts, change other user records, print the MongoDB URI, or add a public API route.
+The reset utility updates only the existing account whose email is configured in `backend/scripts/resetAdminPassword.js`. It sets that account's role to `admin`; the `User` model hashes the new password with bcryptjs when the record is saved. It aborts if the account does not exist and does not create accounts, change other user records, print the MongoDB URI, or add a public API route. The local interactive mode confirms the email and reads the new password twice without echoing it.
 
 Run it from a trusted interactive terminal with Node.js dependencies installed and `MONGODB_URI` set to the intended Atlas database. Locally, you can use the existing ignored `backend/.env` file and run this from the repository root:
 
@@ -566,9 +566,11 @@ Run it from a trusted interactive terminal with Node.js dependencies installed a
 npm --prefix backend run reset-admin
 ```
 
-You do not need VS Code. If the deployed Render backend has the Shell feature available, first deploy the reviewed reset utility through your normal release process, open that backend service's Shell, and run `npm run reset-admin` from its configured backend root (or `npm --prefix backend run reset-admin` from the repository root). Verify that the service is connected to the intended Atlas database before confirming. Never put the MongoDB URI or password in the command, source code, or chat. Choose a new password of at least 12 characters; do not reuse any password shared in chat. Do not run `seed.js` against production.
+You do not need VS Code. GitHub Actions does not provide a hidden interactive terminal during `workflow_dispatch`, so the Actions workflow uses a protected GitHub Environment secret instead. Before running it, create the `admin-password-reset` environment in repository Settings, restrict its deployment branches to `main`, and require a trusted reviewer. Add `MONGODB_URI` and `ADMIN_RESET_PASSWORD` as environment secrets (not workflow inputs). The password secret must contain a new password of at least 12 characters. The workflow is manually triggered, only runs from `main`, uses read-only repository permissions, confirms the exact target email, and does not print either secret.
 
-After the reset, remove the utility and its npm command in a follow-up source change and release if the deployed copy is no longer needed. It is not a public endpoint, but anyone with access to the backend shell can run it again.
+To run it, open **Actions > One-time admin password reset > Run workflow**, select `main`, and confirm. Approve the environment deployment when prompted. After a successful run, delete the `ADMIN_RESET_PASSWORD` environment secret promptly; do not reuse any password shared in chat. Never put the MongoDB URI or password in workflow inputs, source code, or chat. Do not run `seed.js` against production.
+
+After the reset, remove the workflow, utility, and npm command in a follow-up source change if no longer needed. The workflow cannot run unless manually dispatched and the protected environment is approved, but repository/environment administrators can still authorize it.
 
 ---
 

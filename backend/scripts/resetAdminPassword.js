@@ -18,7 +18,31 @@ const SAFE_FAILURES = new Set([
   'An interactive terminal is required to enter the password securely',
   'Password entry cancelled',
   'Password input closed',
+  'Workflow password secrets are accepted only in GitHub Actions',
+  'Workflow confirmation did not match the configured admin email',
+  'GitHub Actions admin password secret is missing',
 ]);
+
+const getWorkflowPassword = (environment = process.env) => {
+  const password = environment.ADMIN_RESET_PASSWORD;
+  const confirmation = environment.ADMIN_RESET_CONFIRM_EMAIL;
+
+  if (environment.GITHUB_ACTIONS !== 'true') {
+    if (password !== undefined || confirmation !== undefined) {
+      throw new Error('Workflow password secrets are accepted only in GitHub Actions');
+    }
+    return undefined;
+  }
+
+  if (typeof password !== 'string' || password.length === 0) {
+    throw new Error('GitHub Actions admin password secret is missing');
+  }
+  if (typeof confirmation !== 'string' || confirmation.trim().toLowerCase() !== TARGET_EMAIL) {
+    throw new Error('Workflow confirmation did not match the configured admin email');
+  }
+
+  return password;
+};
 
 const resetAdminAccount = async (newPassword, UserModel = User) => {
   if (typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD_LENGTH) {
@@ -106,16 +130,21 @@ const main = async () => {
     throw new Error('MONGODB_URI must be configured for the intended database');
   }
 
-  const confirmation = await askVisible(`Type ${TARGET_EMAIL} to confirm the account: `);
-  if (confirmation.trim().toLowerCase() !== TARGET_EMAIL) {
-    throw new Error('Account confirmation did not match');
-  }
-
   let newPassword;
   let passwordConfirmation;
   try {
-    newPassword = await askHidden('New password (input hidden): ');
-    passwordConfirmation = await askHidden('Confirm new password (input hidden): ');
+    newPassword = getWorkflowPassword();
+    if (newPassword !== undefined) {
+      passwordConfirmation = newPassword;
+    } else {
+      const confirmation = await askVisible(`Type ${TARGET_EMAIL} to confirm the account: `);
+      if (confirmation.trim().toLowerCase() !== TARGET_EMAIL) {
+        throw new Error('Account confirmation did not match');
+      }
+
+      newPassword = await askHidden('New password (input hidden): ');
+      passwordConfirmation = await askHidden('Confirm new password (input hidden): ');
+    }
 
     if (newPassword !== passwordConfirmation) {
       throw new Error('Password entries did not match');
@@ -147,6 +176,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  getWorkflowPassword,
   resetAdminAccount,
   TARGET_EMAIL,
 };
