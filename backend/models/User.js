@@ -46,6 +46,11 @@ const UserSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    pointsUnitVersion: {
+      type: Number,
+      default: 2,
+      select: false,
+    },
     dailyStepGoal: {
       type: Number,
       min: 1,

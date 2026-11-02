@@ -4,8 +4,8 @@
 
 The **Health Reward Management System** is a gamified fitness tracking application that motivates users to stay active by:
 1. **Tracking Steps** - Users log their daily walking steps
-2. **Earning Points** - Points calculated automatically (100 steps = 1 point)
-3. **Redeeming Rewards** - Exchange accumulated points for cash, vouchers, tickets, or coupons
+2. **Earning Rewards** - Each logged step earns 10 paise by default (100 steps = ₹10); balances are stored as integer paise.
+3. **Redeeming Rewards** - Spend the paise-denominated balance on a catalog offer; redemption creates an in-app tracking code, not external cash or voucher fulfillment.
 4. **Competing** - View rankings on leaderboard to motivate others
 
 ## 📊 System Overview
@@ -100,7 +100,7 @@ User Interface (React)
     │                          │
     │ 1. Auth Middleware       │ (Verify JWT Token)
     │ 2. Validation           │ (Check date, steps)
-    │ 3. Calculate Points     │ (steps / 100)
+    │ 3. Calculate Reward     │ (steps × 10 paise)
     │ 4. Update User Stats    │
     │ 5. Save to Database     │
     └────┬────────────────────┘
@@ -110,7 +110,7 @@ User Interface (React)
     │                               │
     │ 1. Create Step Document      │
     │ 2. Update User Totals        │
-    │ 3. Calculate Running Points  │
+    │ 3. Update Running Balance   │
     └────┬─────────────────────────┘
          │
     ┌────▼──────────────┐
@@ -120,7 +120,7 @@ User Interface (React)
          │
     ┌────▼──────────────┐
     │ React Component    │
-    │ Updates UI         │ (Show new points, success message)
+    │ Updates UI         │ (Show rupee balance, success message)
     └───────────────────┘
 ```
 
@@ -162,9 +162,9 @@ User enters credentials
   password: String (hashed),
   role: String, // 'user' or 'admin'
   totalSteps: Number,
-  totalPoints: Number,
-  availablePoints: Number,
-  redeemedPoints: Number,
+  totalPoints: Number, // paise
+  availablePoints: Number, // paise
+  redeemedPoints: Number, // paise
   isBlocked: Boolean
 }
 ```
@@ -176,7 +176,7 @@ User enters credentials
   userId: ObjectId (reference to User),
   date: Date,
   steps: Number,
-  pointsEarned: Number // calculated: steps / 100
+  pointsEarned: Number // stored as paise: steps × 10
 }
 ```
 
@@ -186,7 +186,7 @@ User enters credentials
   _id: ObjectId,
   title: String,
   category: String, // 'CASH', 'MOVIE_TICKET', etc.
-  pointsRequired: Number,
+  pointsRequired: Number, // paise
   value: Number,
   description: String
 }
@@ -198,7 +198,7 @@ User enters credentials
   _id: ObjectId,
   userId: ObjectId,
   rewardId: ObjectId,
-  pointsUsed: Number,
+  pointsUsed: Number, // paise
   status: String, // 'approved', 'pending', etc.
   redeemCode: String // unique code for redemption
 }
@@ -208,21 +208,21 @@ User enters credentials
 
 ### 1. Reward Calculation
 ```
-Formula: Points = Steps ÷ 100
+Formula: Reward balance in paise = Steps × 10
 
 Examples:
-- 500 steps → 5 points
-- 1000 steps → 10 points
-- 5000 steps → 50 points
+- 1 step → 10 paise (₹0.10)
+- 100 steps → 1,000 paise (₹10)
+- 1,000 steps → 10,000 paise (₹100)
 ```
 
 ### 2. Redemption System
 ```
 When user redeems reward:
-1. Check available points
-2. Verify points >= required points
-3. Deduct from available points
-4. Add to redeemed points
+1. Check the available balance
+2. Verify balance >= reward cost (both in paise)
+3. Deduct the reward cost from the balance
+4. Add the amount to the redeemed balance
 5. Generate unique redemption code
 6. Create redemption record
 ```
@@ -230,7 +230,7 @@ When user redeems reward:
 ### 3. Leaderboard
 ```
 Top 10 users ranked by:
-1. Total Points (Primary)
+1. Total Reward Balance (stored in paise)
 2. Total Steps (Secondary)
 ```
 
@@ -239,7 +239,7 @@ Top 10 users ranked by:
 Shows:
 - Total Users
 - Total Steps (aggregate)
-- Total Points Generated
+- Total Reward Value Generated (paise internally; rupees in the app)
 - Total Redemptions Completed
 ```
 
@@ -339,24 +339,24 @@ Shows:
 
 2. DASHBOARD VIEW
    └→ User logs in
-   └→ Fetch user stats (steps, points)
+   └→ Fetch user stats (steps, reward balance)
    └→ Display in dashboard
 
 3. LOG STEPS
    └→ User enters steps for a date
-   └→ Backend calculates points (steps/100)
+   └→ Backend calculates reward balance (steps × 10 paise)
    └→ Step record created
    └→ User stats updated
 
 4. VIEW REWARDS
    └→ Fetch available rewards
-   └→ Display with point requirements
-   └→ Check user's available points
+   └→ Display with rupee-denominated costs
+   └→ Check user's available balance
 
 5. REDEEM REWARD
    └→ User selects reward
-   └→ Check points balance
-   └→ Deduct points
+   └→ Check balance
+   └→ Deduct reward cost
    └→ Generate unique code
    └→ Create redemption record
 

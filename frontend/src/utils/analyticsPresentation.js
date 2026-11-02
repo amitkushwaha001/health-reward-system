@@ -15,14 +15,14 @@ export const makePointsChartData = (buckets = []) => ({
   labels: buckets.map((bucket) => bucket.label),
   datasets: [
     {
-      label: 'Points earned',
-      data: buckets.map((bucket) => bucket.pointsEarned),
+      label: 'Earned (₹)',
+      data: buckets.map((bucket) => bucket.pointsEarned === null ? null : bucket.pointsEarned / 100),
       backgroundColor: '#17865b',
       borderRadius: 6,
     },
     {
-      label: 'Points redeemed',
-      data: buckets.map((bucket) => bucket.pointsRedeemed),
+      label: 'Redeemed (₹)',
+      data: buckets.map((bucket) => bucket.pointsRedeemed / 100),
       backgroundColor: '#e5a84b',
       borderRadius: 6,
     },

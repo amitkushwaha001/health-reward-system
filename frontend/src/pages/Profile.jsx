@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { userService } from '../services/apiService';
 import { StatCard } from '../components/Shared';
+import { formatRewardBalance } from '../utils/rewardCurrency';
 
 export const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -202,20 +203,20 @@ export const Profile = () => {
                 color="primary"
               />
               <StatCard
-                title="Total Points"
-                value={profile?.totalPoints || 0}
+                title="Total Earned"
+                value={formatRewardBalance(profile?.totalPoints)}
                 icon="⭐"
                 color="secondary"
               />
               <StatCard
-                title="Available Points"
-                value={profile?.availablePoints || 0}
+                title="Available Balance"
+                value={formatRewardBalance(profile?.availablePoints)}
                 icon="💎"
                 color="warning"
               />
               <StatCard
-                title="Redeemed Points"
-                value={profile?.redeemedPoints || 0}
+                title="Redeemed Value"
+                value={formatRewardBalance(profile?.redeemedPoints)}
                 icon="✅"
                 color="success"
               />

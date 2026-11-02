@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { adminService } from '../services/apiService';
 import { LoadingSpinner, StatCard } from '../components/Shared';
 import { AdminReportCharts } from '../components/AdminReportCharts';
+import { formatRewardBalance } from '../utils/rewardCurrency';
 
 export const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -43,8 +44,8 @@ export const AdminDashboard = () => {
             color="secondary"
           />
           <StatCard
-            title="Rewards Generated"
-            value={stats?.totalRewardsGenerated || 0}
+            title="Reward Value Generated"
+            value={formatRewardBalance(stats?.totalRewardsGenerated)}
             icon="⭐"
             color="warning"
           />
@@ -200,7 +201,7 @@ export const AdminUsers = () => {
                   <th>Name</th>
                   <th>Email</th>
                   <th>Total Steps</th>
-                  <th>Total Points</th>
+                  <th>Total Earned</th>
                   <th>Status</th>
                   <th>Actions</th>
                 </tr>
@@ -211,7 +212,7 @@ export const AdminUsers = () => {
                     <td>{user.name}</td>
                     <td>{user.email}</td>
                     <td>{user.totalSteps.toLocaleString()}</td>
-                    <td>{user.totalPoints}</td>
+                    <td>{formatRewardBalance(user.totalPoints)}</td>
                     <td>
                       <span className={`status ${user.isBlocked ? 'blocked' : 'active'}`}>
                         {user.isBlocked ? 'BLOCKED' : 'ACTIVE'}
@@ -356,11 +357,15 @@ export const AdminRewards = () => {
     setSaving(true);
     setError('');
     try {
+      const rewardData = {
+        ...formData,
+        pointsRequired: Math.round(Number(formData.pointsRequired) * 100),
+      };
       if (editingId) {
-        await adminService.updateReward(editingId, formData);
+        await adminService.updateReward(editingId, rewardData);
         setMessage('Reward updated successfully');
       } else {
-        await adminService.createReward(formData);
+        await adminService.createReward(rewardData);
         setMessage('Reward created successfully');
       }
       setFormData({
@@ -384,7 +389,7 @@ export const AdminRewards = () => {
     setFormData({
       title: reward.title,
       category: reward.category,
-      pointsRequired: reward.pointsRequired,
+      pointsRequired: (reward.pointsRequired / 100).toFixed(2),
       value: reward.value,
       description: reward.description || '',
     });
@@ -448,20 +453,23 @@ export const AdminRewards = () => {
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 >
-                  <option>CASH</option>
-                  <option>MOVIE_TICKET</option>
-                  <option>SHOPPING_VOUCHER</option>
-                  <option>FOOD_COUPON</option>
+                  <option value="CASH">Cash reward</option>
+                  <option value="MOVIE_TICKET">Movie ticket</option>
+                  <option value="SHOPPING_VOUCHER">Shopping voucher</option>
+                  <option value="FOOD_COUPON">Food coupon</option>
+                  <option value="TRAVEL_VOUCHER">Travel voucher</option>
+                  <option value="WELLNESS">Wellness</option>
+                  <option value="GIFT_CARD">Gift card</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Points Required</label>
+                <label>Reward cost (₹)</label>
                 <input
                   type="number"
                   value={formData.pointsRequired}
                   onChange={(e) => setFormData({ ...formData, pointsRequired: e.target.value })}
-                  min="1"
-                  step="1"
+                  min="0.01"
+                  step="0.01"
                   required
                 />
               </div>
@@ -500,7 +508,7 @@ export const AdminRewards = () => {
                 rewards.map((reward) => (
                   <div key={reward._id} className="reward-item">
                     <h4>{reward.title}</h4>
-                    <p>{reward.pointsRequired} points · {reward.isActive ? 'Active' : 'Inactive'}</p>
+                    <p>{formatRewardBalance(reward.pointsRequired)} · {reward.isActive ? 'Active' : 'Inactive'}</p>
                     <div className="button-group">
                       <button type="button" className="btn btn-outline" onClick={() => handleEdit(reward)}>Edit</button>
                       <button type="button" className="btn btn-outline" onClick={() => handleToggleActive(reward)}>{reward.isActive ? 'Deactivate' : 'Activate'}</button>
@@ -591,8 +599,8 @@ export const AdminReports = () => {
               </div>
               <div className="report-stats">
                 <p>Total Users: <strong>{reports.userActivity.totalUsers}</strong></p>
-                <p>Total Points: <strong>{reports.userActivity.totalPoints}</strong></p>
-                <p>Total Redeemed: <strong>{reports.userActivity.totalRedeemed}</strong></p>
+                <p>Total reward value earned: <strong>{formatRewardBalance(reports.userActivity.totalPoints)}</strong></p>
+                <p>Total Redeemed: <strong>{formatRewardBalance(reports.userActivity.totalRedeemed)}</strong></p>
               </div>
             </div>
 

@@ -5,6 +5,7 @@ const Reward = require('../models/Reward');
 const Step = require('../models/Step');
 const User = require('../models/User');
 const { generateRecommendationDrafts } = require('../utils/recommendationEngine');
+const { formatRupees } = require('../utils/helpers');
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_CHAT_HISTORY = 60;
@@ -192,9 +193,12 @@ const buildAssistantReply = ({ message, user, activity, recommendedReward }) => 
   }
   if (normalized.includes('reward') || normalized.includes('redeem')) {
     if (recommendedReward) {
-      return `Your available balance is ${user.availablePoints.toLocaleString()} points. ${recommendedReward.title} requires ${recommendedReward.pointsRequired.toLocaleString()} points. I can point you to the catalog, but I will not redeem anything for you.`;
+      if (recommendedReward.pointsRequired <= user.availablePoints) {
+        return `Your available reward balance is ${formatRupees(user.availablePoints)}. You can redeem ${recommendedReward.title}, which costs ${formatRupees(recommendedReward.pointsRequired)}. I can point you to the catalog, but I will not redeem anything for you.`;
+      }
+      return `Your available reward balance is ${formatRupees(user.availablePoints)}. ${recommendedReward.title} requires ${formatRupees(recommendedReward.pointsRequired)}. I can point you to the catalog, but I will not redeem anything for you.`;
     }
-    return `Your current available balance is ${user.availablePoints.toLocaleString()} points. There are no active rewards in the catalog right now.`;
+    return `Your current available reward balance is ${formatRupees(user.availablePoints)}. There are no active rewards in the catalog right now.`;
   }
   if (normalized.includes('goal') || normalized.includes('target')) {
     if (user.dailyStepGoal) {
@@ -240,8 +244,8 @@ const sendChatMessage = async (req, res, next) => {
     ]);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-    const recommendedReward = rewards.find((reward) => reward.pointsRequired >= user.availablePoints)
-      || rewards[rewards.length - 1];
+    const recommendedReward = rewards.filter((reward) => reward.pointsRequired <= user.availablePoints).pop()
+      || rewards.find((reward) => reward.pointsRequired > user.availablePoints);
     const assistantText = buildAssistantReply({ message, user, activity, recommendedReward });
     const messages = [
       { role: 'user', content: message },

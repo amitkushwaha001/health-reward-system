@@ -1,3 +1,5 @@
+const { formatRupees } = require('./helpers');
+
 const getDayKey = (date) => date.toISOString().slice(0, 10);
 
 const generateRecommendationDrafts = ({ user, steps, rewards, now = new Date() }) => {
@@ -69,17 +71,17 @@ const generateRecommendationDrafts = ({ user, steps, rewards, now = new Date() }
   const availableRewards = rewards
     .filter((reward) => reward.isActive)
     .sort((left, right) => left.pointsRequired - right.pointsRequired);
-  const nextReward = availableRewards.find((reward) => reward.pointsRequired >= user.availablePoints)
-    || availableRewards[availableRewards.length - 1];
+  const nextReward = availableRewards.filter((reward) => reward.pointsRequired <= user.availablePoints).pop()
+    || availableRewards.find((reward) => reward.pointsRequired > user.availablePoints);
   if (nextReward) {
     const pointsNeeded = Math.max(0, nextReward.pointsRequired - user.availablePoints);
     drafts.push({
       key: `reward-${nextReward._id}-${pointsNeeded}`,
-      title: pointsNeeded ? `${pointsNeeded} points to your next available reward` : `A reward is within your current points balance`,
-      explanation: `${nextReward.title} requires ${nextReward.pointsRequired.toLocaleString()} points; your available balance is ${user.availablePoints.toLocaleString()}.`,
-      expectedBenefit: 'Shows a real catalog option that matches your current points balance.',
+      title: pointsNeeded ? `${formatRupees(pointsNeeded)} to your next reward` : 'A reward is within your current balance',
+      explanation: `${nextReward.title} requires ${formatRupees(nextReward.pointsRequired)}; your available reward balance is ${formatRupees(user.availablePoints)}.`,
+      expectedBenefit: 'Shows a real catalog option alongside your current reward balance.',
       priority: pointsNeeded === 0 ? 'medium' : 'low',
-      suggestedAction: pointsNeeded ? 'Review the reward in the catalog; points are earned using your existing step-to-point rule.' : 'Review this reward in the catalog; it will not be redeemed automatically.',
+      suggestedAction: pointsNeeded ? 'Review the reward in the catalog; each new step earns ₹0.10.' : 'Review this reward in the catalog; it will not be redeemed automatically.',
     });
   }
 

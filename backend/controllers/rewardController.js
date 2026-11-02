@@ -3,6 +3,7 @@ const Redemption = require('../models/Redemption');
 const User = require('../models/User');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const { formatRupees } = require('../utils/helpers');
 
 // @desc Get all available rewards
 // @route GET /api/rewards
@@ -63,6 +64,7 @@ const redeemReward = async (req, res, next) => {
           userId: req.user.id,
           rewardId,
           pointsUsed: reward.pointsRequired,
+          pointsUnitVersion: 2,
           redemptionType: reward.category,
           value: reward.value,
           redeemCode,
@@ -79,7 +81,7 @@ const redeemReward = async (req, res, next) => {
     if (availablePoints !== undefined) {
       return res.status(400).json({
         success: false,
-        message: `Insufficient points. You need ${reward.pointsRequired} points but have ${availablePoints}`,
+        message: `Insufficient reward balance. You need ${formatRupees(reward.pointsRequired)} but have ${formatRupees(availablePoints)}.`,
       });
     }
     if (!redemption) {
@@ -102,7 +104,7 @@ const redeemReward = async (req, res, next) => {
 const getRedemptionHistory = async (req, res, next) => {
   try {
     const redemptions = await Redemption.find({ userId: req.user.id })
-      .populate('rewardId', 'title category value')
+      .populate('rewardId', 'title category value currency')
       .sort({ createdAt: -1 });
 
     res.status(200).json({

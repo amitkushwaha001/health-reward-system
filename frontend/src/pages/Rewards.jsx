@@ -3,6 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { rewardService } from '../services/apiService';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/Shared';
+import { formatRewardBalance } from '../utils/rewardCurrency';
+
+const REWARD_ICONS = {
+  CASH: '💰',
+  MOVIE_TICKET: '🎬',
+  SHOPPING_VOUCHER: '🛍️',
+  FOOD_COUPON: '🍔',
+  TRAVEL_VOUCHER: '✈️',
+  WELLNESS: '🌿',
+  GIFT_CARD: '🎁',
+};
+
+const formatRewardValue = (reward) => {
+  if (reward.category === 'MOVIE_TICKET') {
+    return `${reward.value} ${reward.value === 1 ? 'ticket' : 'tickets'}`;
+  }
+  return `${reward.currency || '₹'}${reward.value}`;
+};
 
 export const RewardsPage = () => {
   const { user } = useAuth();
@@ -51,8 +69,12 @@ export const RewardsPage = () => {
     <div className="rewards-container">
       <div className="container">
         <h1>🎁 Available Rewards</h1>
-        <p className="subtitle">Your Available Points: <strong>{user?.availablePoints || 0}</strong></p>
+        <p className="subtitle">Your Available Reward Balance: <strong>{formatRewardBalance(user?.availablePoints)}</strong></p>
         <button type="button" className="history-btn" onClick={goToRedemptionHistory}>View Redeem History</button>
+        <div className="alert alert-warning" role="note">
+          These are sample reward offers. Redeeming spends your rupee-denominated balance and creates an in-app code for tracking;
+          cash transfers, bookings, and partner voucher delivery are not connected.
+        </div>
 
         {message && <div className="alert alert-success">{message}</div>}
         {error && <div className="alert alert-error">{error}</div>}
@@ -61,22 +83,19 @@ export const RewardsPage = () => {
           {rewards.map((reward) => (
             <div key={reward._id} className="reward-card">
               <div className="reward-icon">
-                {reward.category === 'CASH' && '💰'}
-                {reward.category === 'MOVIE_TICKET' && '🎬'}
-                {reward.category === 'SHOPPING_VOUCHER' && '🛍️'}
-                {reward.category === 'FOOD_COUPON' && '🍔'}
+                {REWARD_ICONS[reward.category] || '🎁'}
               </div>
 
               <h3>{reward.title}</h3>
-              <p className="category">{reward.category.replace('_', ' ')}</p>
+              <p className="category">{reward.category.split('_').join(' ')}</p>
               <p className="description">{reward.description}</p>
 
               <div className="reward-value">
                 <p className="value">
-                  {reward.currency || '₹'}{reward.value}
+                  {formatRewardValue(reward)}
                 </p>
                 <p className="points-cost">
-                  {reward.pointsRequired} Points
+                  {formatRewardBalance(reward.pointsRequired)} to redeem
                 </p>
               </div>
 
@@ -85,12 +104,12 @@ export const RewardsPage = () => {
                 disabled={!canRedeem(reward.pointsRequired)}
                 className={`btn ${canRedeem(reward.pointsRequired) ? 'btn-primary' : 'btn-disabled'}`}
               >
-                {canRedeem(reward.pointsRequired) ? 'Redeem Now' : 'Insufficient Points'}
+                {canRedeem(reward.pointsRequired) ? 'Redeem Now' : 'Insufficient Balance'}
               </button>
 
               {!canRedeem(reward.pointsRequired) && (
                 <p className="need-points">
-                  Need {reward.pointsRequired - (user?.availablePoints || 0)} more points
+                  Need {formatRewardBalance(reward.pointsRequired - (user?.availablePoints || 0))} more
                 </p>
               )}
             </div>
@@ -99,7 +118,7 @@ export const RewardsPage = () => {
 
         {rewards.length === 0 && (
           <div className="no-rewards">
-            <p>No rewards available at the moment. Please check back later!</p>
+            <p>No rewards are available right now. Please check back later or contact an administrator.</p>
           </div>
         )}
       </div>
@@ -250,7 +269,7 @@ export const RedemptionHistory = () => {
                 <tr>
                   <th>Date</th>
                   <th>Reward</th>
-                  <th>Points Used</th>
+                  <th>Reward Balance Used</th>
                   <th>Value</th>
                   <th>Status</th>
                   <th>Redeem Code</th>
@@ -262,8 +281,12 @@ export const RedemptionHistory = () => {
                     <tr key={redemption._id}>
                       <td>{new Date(redemption.createdAt).toLocaleDateString()}</td>
                       <td>{redemption.rewardId?.title}</td>
-                      <td>{redemption.pointsUsed}</td>
-                      <td>₹{redemption.value}</td>
+                      <td>{formatRewardBalance(redemption.pointsUsed)}</td>
+                      <td>{formatRewardValue({
+                        category: redemption.rewardId?.category || redemption.redemptionType,
+                        value: redemption.value,
+                        currency: redemption.rewardId?.currency,
+                      })}</td>
                       <td>
                         <span className={`status status-${redemption.status}`}>
                           {redemption.status.toUpperCase()}

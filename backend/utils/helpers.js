@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { REWARD_CONFIG } = require('../config/constants');
 
 // Generate JWT Token
 const generateToken = (id, role) => {
@@ -34,14 +35,19 @@ const sendTokenResponse = (user, statusCode, res) => {
   });
 };
 
-// Calculate Points from Steps
+// Balances and reward costs are integer paise to avoid fractional currency math.
 const calculatePoints = (steps) => {
-  const ratio = Number(process.env.STEPS_TO_POINTS_RATIO || 100);
-  if (!Number.isSafeInteger(ratio) || ratio < 1) {
-    throw new Error('STEPS_TO_POINTS_RATIO must be a positive integer');
+  const paise = steps * REWARD_CONFIG.PAISE_PER_STEP;
+  if (!Number.isSafeInteger(paise)) {
+    throw new Error('Step reward exceeds the safe integer range');
   }
-  return Math.floor(steps / ratio);
+  return paise;
 };
+
+const formatRupees = (paise) => `₹${(paise / 100).toLocaleString('en-IN', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+})}`;
 
 const parseUtcDate = (value) => {
   if (typeof value !== 'string' || !value.trim()) return null;
@@ -61,12 +67,15 @@ const parseUtcDate = (value) => {
   return Number.isNaN(date.getTime()) ? null : date;
 };
 
-const isValidStepCount = (value) => Number.isSafeInteger(value) && value >= 0;
+const isValidStepCount = (value) => Number.isSafeInteger(value)
+  && value >= 0
+  && Number.isSafeInteger(value * REWARD_CONFIG.PAISE_PER_STEP);
 
 module.exports = {
   generateToken,
   sendTokenResponse,
   calculatePoints,
+  formatRupees,
   parseUtcDate,
   isValidStepCount,
 };

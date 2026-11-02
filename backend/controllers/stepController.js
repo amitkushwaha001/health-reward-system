@@ -1,7 +1,7 @@
 const Step = require('../models/Step');
 const User = require('../models/User');
 const mongoose = require('mongoose');
-const { calculatePoints, parseUtcDate, isValidStepCount } = require('../utils/helpers');
+const { calculatePoints, formatRupees, parseUtcDate, isValidStepCount } = require('../utils/helpers');
 
 // @desc Add daily steps
 // @route POST /api/steps/add
@@ -28,6 +28,7 @@ const addSteps = async (req, res, next) => {
           const oldPoints = step.pointsEarned;
           step.steps = steps;
           step.pointsEarned = pointsEarned;
+          step.pointsUnitVersion = 2;
           await step.save({ session });
           await User.updateOne(
             { _id: req.user.id },
@@ -40,6 +41,7 @@ const addSteps = async (req, res, next) => {
             date: normalizedDate,
             steps,
             pointsEarned,
+            pointsUnitVersion: 2,
           }], { session });
           await User.updateOne(
             { _id: req.user.id },
@@ -55,7 +57,7 @@ const addSteps = async (req, res, next) => {
     res.status(201).json({
       success: true,
       data: step,
-      message: `${steps} steps recorded! You earned ${pointsEarned} points.`,
+      message: `${steps} steps recorded! You earned ${formatRupees(pointsEarned)}.`,
     });
   } catch (error) {
     next(error);
@@ -140,6 +142,7 @@ const updateSteps = async (req, res, next) => {
 
         step.steps = steps;
         step.pointsEarned = newPoints;
+        step.pointsUnitVersion = 2;
         await step.save({ session });
 
         await User.updateOne(

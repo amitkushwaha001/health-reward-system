@@ -20,6 +20,11 @@ const StepSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    pointsUnitVersion: {
+      type: Number,
+      default: 2,
+      select: false,
+    },
     createdAt: {
       type: Date,
       default: Date.now,

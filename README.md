@@ -1,18 +1,18 @@
 # Health Rewards
 
-**Make every step count.** Health Rewards is a full-stack wellness and rewards platform that turns manually logged daily movement into a simple progress journey. People can record steps, see how their activity adds up, earn points, and browse rewards, while administrators manage the reward catalog and keep an eye on platform activity.
+**Make every step count.** Health Rewards is a full-stack wellness and rewards platform that turns manually logged daily movement into a simple progress journey. People can record steps, see how their activity adds up, earn a cash-denominated reward balance, and browse rewards, while administrators manage the reward catalog and keep an eye on platform activity.
 
-The project brings together a React web app, an Express REST API, and MongoDB. Its goal is to make everyday movement feel more motivating: a user logs activity, sees points calculated from their steps, follows progress in their dashboard, and decides whether to redeem points from the available catalog. Admin tools provide a separate, role-restricted workspace for users, rewards, and reports.
+The project brings together a React web app, an Express REST API, and MongoDB. Its goal is to make everyday movement feel more motivating: a user logs activity, earns ₹0.10 for each logged step, follows progress in their dashboard, and decides whether to redeem their balance from the available catalog. Admin tools provide a separate, role-restricted workspace for users, rewards, and reports.
 
 <p align="center">
-  <img src="docs/assets/health-rewards-overview.svg" alt="Illustration of the Health Rewards journey: log movement, earn points, and explore rewards" width="100%">
+  <img src="docs/assets/health-rewards-overview.svg" alt="Illustration of the Health Rewards journey: log movement, earn reward balance, and explore rewards" width="100%">
 </p>
 
 > **Illustration, not a product screenshot.** The visual above summarizes the app's movement-to-rewards flow.
 
 ## Project description
 
-Health Rewards is designed for people who want a lightweight way to connect activity tracking with a reward goal. It does not automatically collect steps from a phone, watch, or external health service: users enter their step records in the app. Those records feed personal summaries and points, and users can explore the catalog and track their redemption history.
+Health Rewards is designed for people who want a lightweight way to connect activity tracking with a reward goal. It does not automatically collect steps from a phone, watch, or external health service: users enter their step records in the app. Those records feed personal summaries and a rupee-denominated balance, and users can explore the catalog and track their redemption history.
 
 The application also includes activity insights, recommendations, and a chat-style assistant based on in-app records. These features are informational, not medical advice; projections are estimates, and the assistant does not redeem rewards or change account settings. Admin-only pages provide tools for managing users and rewards and viewing reports.
 
@@ -20,8 +20,8 @@ The application also includes activity insights, recommendations, and a chat-sty
 
 1. **Create an account and sign in.** User and admin experiences are role-restricted.
 2. **Log daily steps.** Add a record and review or update step history.
-3. **Follow progress.** Check points, activity analytics, leaderboard placement, and available balance.
-4. **Choose a reward.** Browse available rewards, redeem points, and review redemption history.
+3. **Follow progress.** Check earnings, activity analytics, leaderboard placement, and available balance.
+4. **Choose a reward.** Browse available rewards, redeem from your balance, and review redemption history.
 5. **Review wellness guidance.** Explore activity-based insights and recommendations at your own discretion.
 
 ### Feature overview
@@ -29,15 +29,17 @@ The application also includes activity insights, recommendations, and a chat-sty
 | Area | Description |
 | --- | --- |
 | Activity tracking | Record daily step counts and review, edit, or delete entries. |
-| Points | Earn points from logged steps using the configured ratio. |
+| Reward balance | Earn ₹0.10 for each logged step by default. Rewards and balances use paise internally to keep currency calculations exact. |
 | Rewards | Browse the active catalog, redeem an eligible reward, and check past redemptions. |
-| Progress | View dashboard summaries, activity analytics, and leaderboard rankings. |
+| Progress | View dashboard summaries, rupee-denominated activity analytics, and leaderboard rankings. |
 | Wellness guidance | Review activity-based insights, recommendations, and chat responses; informational only. |
 | Administration | Manage users and rewards, view dashboard statistics, and access reports. |
 
-### Points at a glance
+### Earning rate
 
-The default conversion is **100 steps = 1 point**. The ratio can be configured with the backend's `STEPS_TO_POINTS_RATIO` environment variable. Points are rounded down per step record (for example, 250 steps earns 2 points at the default ratio); this is a rewards mechanic, not a measure of health or fitness.
+The default earning rate is **1 step = 10 paise**, so **100 steps = ₹10** and **1,000 steps = ₹100**. The backend stores balances and reward costs as integer paise and converts them to rupees in the app. The app rewards the exact number of steps entered; it does not verify steps with a phone or wearable.
+
+On startup, existing legacy balances, step earnings, reward prices, and redemption records are converted from points to paise once while preserving their existing rupee value. The earning rate is defined in backend configuration and is not an environment-variable setting.
 
 ## Technology
 
@@ -53,7 +55,7 @@ The default conversion is **100 steps = 1 point**. The ratio can be configured w
 ```text
 React app (frontend/) ── REST API ── Express app (backend/) ── MongoDB
                                       ├── Authentication and user profiles
-                                      ├── Steps, points, rewards, and redemptions
+                                      ├── Steps, balances, rewards, and redemptions
                                       ├── Leaderboard and activity analytics
                                       ├── Admin operations
                                       └── Insights, recommendations, and chat
@@ -113,6 +115,8 @@ Open the frontend at `http://localhost:3000`.
 ### Optional demo data
 
 `backend/seed.js` is an opt-in development utility that **deletes and recreates** the demo users, steps, and rewards collections. Only use it with a disposable local development database, never with production or real user data. It requires `NODE_ENV=development` and `SEED_DEMO_DATA=true`; see [Environment setup](docs/ENVIRONMENT_SETUP.md) before running it. No demo passwords are published in this README.
+
+On its first startup, the backend adds the starter reward offers to the catalog once. They are sample offers: redeeming one spends reward balance and creates a tracking code, but does not issue real cash, book travel, or deliver a third-party voucher. Administrators can manage or deactivate offers from the admin rewards page.
 
 ## API overview
 

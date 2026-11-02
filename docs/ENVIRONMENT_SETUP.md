@@ -44,16 +44,10 @@ JWT_EXPIRE=7d
 # REWARD CONFIGURATION
 # =================================
 
-# Points conversion (100 steps = 1 point)
-STEPS_TO_POINTS_RATIO=100
 CORS_ORIGINS=http://localhost:3000
 API_RATE_LIMIT=300
 LOGIN_RATE_LIMIT=10
 AI_RATE_LIMIT=20
-
-# Cash redemption rate (1 point = ₹0.1)
-CASH_REDEMPTION_RATE=0.1
-
 
 # =================================
 # EMAIL CONFIGURATION (Optional)
@@ -148,7 +142,6 @@ mongod
 | NODE_ENV | Development or production | development |
 | JWT_SECRET | Secret key for tokens | any_random_string |
 | JWT_EXPIRE | How long tokens last | 7d |
-| STEPS_TO_POINTS_RATIO | Steps to points conversion | 100 |
 | API_RATE_LIMIT | Requests per IP per 15-minute API window | 300 |
 | LOGIN_RATE_LIMIT | Login attempts per IP per 15-minute window | 10 |
 | AI_RATE_LIMIT | Assistant/recommendation generation requests per IP per 15-minute window | 20 |

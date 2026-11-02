@@ -192,7 +192,7 @@ health-reward-system/
 - User Registration & Login (JWT + bcrypt)
 - Dashboard with statistics
 - Step management (add, edit, delete)
-- Automatic points calculation (100 steps = 1 point)
+- Automatic reward balance calculation (1 step = 10 paise; 100 steps = ₹10)
 - Reward redemption system (4 categories)
 - Leaderboard (top 10 users)
 - User profile management

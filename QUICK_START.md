@@ -82,10 +82,7 @@ NODE_ENV=development SEED_DEMO_DATA=true node seed.js
 
 ### Sample User Login
 
-After seeding, login with:
-
-- Email: `john@example.com`
-- Password: `password123`
+Register your own local account in the app, or use a disposable locally seeded account.
 
 Admin accounts must be provisioned through the trusted account-management process.
 
@@ -94,9 +91,9 @@ Admin accounts must be provisioned through the trusted account-management proces
 - [ ] Backend running on port 5000
 - [ ] Frontend running on port 3000
 - [ ] No CORS errors in browser console
-- [ ] Can login with the seeded sample user
+- [ ] Can register and log in with a local account
 - [ ] Dashboard displays user data
-- [ ] Can add steps and see points calculated
+- [ ] Can add steps and see the rupee balance increase by ₹0.10 per step
 
 ## 🆘 Quick Troubleshooting
 
@@ -160,11 +157,8 @@ If you can see the dashboard after logging in with the seeded sample user, the a
 
 ## 📝 Common Modifications
 
-### Change Reward Conversion Rate
-Edit `backend/config/constants.js`:
-```javascript
-STEPS_TO_POINTS_RATIO: 100 // Change this number
-```
+### Reward Earning Rate
+The current rate is fixed in `backend/config/constants.js`: **1 step earns 10 paise (₹0.10)**. The value is not read from `.env`.
 
 ### Add Your Own User
 1. Go to http://localhost:3000/register

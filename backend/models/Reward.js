@@ -9,13 +9,35 @@ const RewardSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ['CASH', 'MOVIE_TICKET', 'SHOPPING_VOUCHER', 'FOOD_COUPON'],
+      enum: [
+        'CASH',
+        'MOVIE_TICKET',
+        'SHOPPING_VOUCHER',
+        'FOOD_COUPON',
+        'TRAVEL_VOUCHER',
+        'WELLNESS',
+        'GIFT_CARD',
+      ],
       required: [true, 'Please provide a category'],
+    },
+    catalogKey: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
     pointsRequired: {
       type: Number,
       required: [true, 'Please provide points required'],
       min: [1, 'Points required must be at least 1'],
+      validate: {
+        validator: Number.isSafeInteger,
+        message: 'Reward cost must be a whole number of paise',
+      },
+    },
+    pointsUnitVersion: {
+      type: Number,
+      default: 2,
+      select: false,
     },
     value: {
       type: Number,

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { stepService, authService } from '../services/apiService';
 import { useAuth } from '../context/AuthContext';
 import { LoadingSpinner } from '../components/Shared';
+import { formatRewardBalance } from '../utils/rewardCurrency';
 
 export const StepsPage = () => {
   const { updateUser } = useAuth();
@@ -137,14 +138,15 @@ export const StepsPage = () => {
                   onChange={handleChange}
                   placeholder="Enter number of steps"
                   min="0"
+                  step="1"
                   required
                 />
                 <p className="hint">
-                  💡 Every 100 steps = 1 reward point
+                  💡 Each step earns ₹0.10 (10 paise)
                 </p>
                 {formData.steps && (
                   <p className="points-earned">
-                    You will earn <strong>{Math.floor(formData.steps / 100)}</strong> points
+                    You will earn <strong>{formatRewardBalance(Number(formData.steps) * 10)}</strong>
                   </p>
                 )}
               </div>
@@ -209,7 +211,7 @@ export const StepsPage = () => {
                 <tr>
                   <th>Date</th>
                   <th>Steps</th>
-                  <th>Points Earned</th>
+                  <th>Reward Earned</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -220,7 +222,7 @@ export const StepsPage = () => {
                       <td>{new Date(step.date).toLocaleDateString()}</td>
                       <td>{step.steps.toLocaleString()}</td>
                       <td>
-                        <span className="points-badge">+{step.pointsEarned}</span>
+                        <span className="points-badge">+{formatRewardBalance(step.pointsEarned)}</span>
                       </td>
                       <td>
                         <button

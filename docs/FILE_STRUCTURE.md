@@ -268,7 +268,7 @@ protect middleware: verify JWT
       ↓
 stepController: addSteps()
       ↓
-Calculate points: steps / 100
+Calculate reward: steps × 10 paise
       ↓
 Step Model: create()
       ↓

@@ -132,7 +132,7 @@ A fully functional, production-ready application for fitness gamification and re
 ✅ Secure Login (JWT + bcrypt)
 ✅ User Dashboard (stats & activity)
 ✅ Step Management (add/edit/delete)
-✅ Automatic Points Calculation (100 steps = 1 point)
+✅ Automatic Reward Calculation (1 step = 10 paise; 100 steps = ₹10)
 ✅ Reward Browsing (4 categories)
 ✅ Reward Redemption (instant)
 ✅ Redemption History (with codes)

@@ -16,9 +16,22 @@ const RedemptionSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Please provide points used'],
     },
+    pointsUnitVersion: {
+      type: Number,
+      default: 2,
+      select: false,
+    },
     redemptionType: {
       type: String,
-      enum: ['CASH', 'MOVIE_TICKET', 'SHOPPING_VOUCHER', 'FOOD_COUPON'],
+      enum: [
+        'CASH',
+        'MOVIE_TICKET',
+        'SHOPPING_VOUCHER',
+        'FOOD_COUPON',
+        'TRAVEL_VOUCHER',
+        'WELLNESS',
+        'GIFT_CARD',
+      ],
       required: true,
     },
     value: {

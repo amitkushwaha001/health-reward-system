@@ -50,8 +50,8 @@ const steps = [
   },
   {
     number: '02',
-    title: 'Build your points',
-    description: 'See your progress turn into points as you stay active.',
+    title: 'Build your reward balance',
+    description: 'Earn ₹0.10 for each step you log and watch your balance grow.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M12 3.5 14.6 9l6.1.8-4.4 4.3 1 6.1-5.3-2.9-5.4 2.9 1-6.1-4.4-4.3L9.3 9 12 3.5Z" />
@@ -94,7 +94,7 @@ export const HomePage = () => (
             <div className="eyebrow"><span /> WELLNESS, WITH A LITTLE MORE PURPOSE</div>
             <h1>Make every step <span>count.</span></h1>
             <p className="hero-description">
-              Turn everyday movement into points, discover rewards, and build a
+              Turn everyday movement into rupee-denominated rewards, discover the catalog, and build a
               routine that feels good—one step at a time.
             </p>
             <div className="hero-actions">

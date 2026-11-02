@@ -78,13 +78,13 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 #### Key Calculations
 ```javascript
-// Points earned = steps / 100 (rounded down)
-const pointsEarned = Math.floor(steps / STEPS_TO_POINTS_RATIO);
+// Reward balance is stored in integer paise: 1 step earns 10 paise by default.
+const rewardPaiseEarned = steps * 10;
 
 // User stats updated automatically
 user.totalSteps += steps;
-user.totalPoints += pointsEarned;
-user.availablePoints += pointsEarned;
+user.totalPoints += rewardPaiseEarned;
+user.availablePoints += rewardPaiseEarned;
 ```
 
 #### Step Record Update Logic
@@ -107,10 +107,10 @@ if (existingRecord) {
 #### Reward Categories
 ```javascript
 {
-  CASH: { pointsRequired: 100, value: 10 },
-  MOVIE_TICKET: { pointsRequired: 500, value: 1 },
-  SHOPPING_VOUCHER: { pointsRequired: 1000, value: 100 },
-  FOOD_COUPON: { pointsRequired: 300, value: 50 }
+  CASH: { pointsRequired: 1000, value: 10 }, // ₹10 costs 1,000 paise
+  MOVIE_TICKET: { pointsRequired: 5000, value: 1 },
+  SHOPPING_VOUCHER: { pointsRequired: 10000, value: 100 }, // ₹100 costs 10,000 paise
+  FOOD_COUPON: { pointsRequired: 5000, value: 50 }
 }
 ```
 

@@ -10,9 +10,9 @@ test('preserves unlogged activity as a chart gap rather than inventing zero-step
   expect(chart.datasets[0].spanGaps).toBe(false);
 });
 
-test('maps earned and redeemed points into distinct measured series', () => {
+test('maps earned and redeemed paise into distinct rupee series', () => {
   const chart = makePointsChartData([
-    { label: 'Week 1', pointsEarned: 22, pointsRedeemed: 10 },
+    { label: 'Week 1', pointsEarned: 2200, pointsRedeemed: 1000 },
   ]);
 
   expect(chart.datasets.map((dataset) => dataset.data)).toEqual([[22], [10]]);

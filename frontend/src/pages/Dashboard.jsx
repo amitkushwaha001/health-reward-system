@@ -5,6 +5,7 @@ import { StatCard, LoadingSpinner } from '../components/Shared';
 import { ActivityAnalytics } from '../components/ActivityAnalytics';
 import { Link } from 'react-router-dom';
 import { AIInsights, AssistantPanel, RecommendedForYou } from '../components/AIExperience';
+import { formatRewardBalance } from '../utils/rewardCurrency';
 
 export const Dashboard = () => {
   const { updateUser } = useAuth();
@@ -57,20 +58,20 @@ export const Dashboard = () => {
             color="primary"
           />
           <StatCard
-            title="Total Points"
-            value={stats?.totalPoints || 0}
+            title="Total Earned"
+            value={formatRewardBalance(stats?.totalPoints)}
             icon="⭐"
             color="secondary"
           />
           <StatCard
-            title="Available Points"
-            value={stats?.availablePoints || 0}
+            title="Available Balance"
+            value={formatRewardBalance(stats?.availablePoints)}
             icon="💎"
             color="warning"
           />
           <StatCard
-            title="Redeemed Points"
-            value={stats?.redeemedPoints || 0}
+            title="Redeemed Value"
+            value={formatRewardBalance(stats?.redeemedPoints)}
             icon="✅"
             color="danger"
           />
@@ -120,7 +121,7 @@ export const Dashboard = () => {
                       {new Date(step.date).toLocaleDateString()}
                     </p>
                     <p className="activity-details">
-                      {step.steps.toLocaleString()} steps | +{step.pointsEarned} points
+                      {step.steps.toLocaleString()} steps | +{formatRewardBalance(step.pointsEarned)}
                     </p>
                   </div>
                 </div>

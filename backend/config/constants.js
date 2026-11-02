@@ -1,31 +1,49 @@
-// Reward Configuration
+// Reward balances and reward prices are stored in paise.
 const REWARD_CONFIG = {
-  STEPS_TO_POINTS_RATIO: 100, // 100 steps = 1 point
+  PAISE_PER_STEP: 10,
 };
 
 // Reward Categories and Rates
 const REWARD_CATEGORIES = {
   CASH: {
     name: 'Cash Redemption',
-    pointsRequired: 100,
+    pointsRequired: 1000,
     value: 10,
     currency: '₹',
   },
   MOVIE_TICKET: {
     name: 'Movie Tickets',
-    pointsRequired: 500,
+    pointsRequired: 5000,
     value: 1,
     unit: 'ticket',
   },
   SHOPPING_VOUCHER: {
     name: 'Shopping Voucher',
-    pointsRequired: 1000,
+    pointsRequired: 10000,
     value: 100,
     currency: '₹',
   },
   FOOD_COUPON: {
     name: 'Food Coupon',
-    pointsRequired: 300,
+    pointsRequired: 5000,
+    value: 50,
+    currency: '₹',
+  },
+  TRAVEL_VOUCHER: {
+    name: 'Travel Voucher',
+    pointsRequired: 5000,
+    value: 50,
+    currency: '₹',
+  },
+  WELLNESS: {
+    name: 'Wellness Voucher',
+    pointsRequired: 10000,
+    value: 100,
+    currency: '₹',
+  },
+  GIFT_CARD: {
+    name: 'Gift Card',
+    pointsRequired: 5000,
     value: 50,
     currency: '₹',
   },

@@ -4,6 +4,7 @@ import { analyticsService } from '../services/apiService';
 import { getHeatmapCells, makePointsChartData, makeStepsChartData } from '../utils/analyticsPresentation';
 import './registerCharts';
 import './ActivityAnalytics.css';
+import { formatRewardBalance } from '../utils/rewardCurrency';
 
 const chartOptions = {
   responsive: true,
@@ -12,7 +13,7 @@ const chartOptions = {
   plugins: { legend: { position: 'bottom' } },
   scales: {
     x: { grid: { display: false } },
-    y: { beginAtZero: true, ticks: { precision: 0 } },
+    y: { beginAtZero: true, ticks: { precision: 2 } },
   },
 };
 
@@ -127,8 +128,8 @@ export const ActivityAnalytics = () => {
             </article>
             <article className="analytics-summary-card">
               <span className="analytics-summary-icon" aria-hidden="true">✦</span>
-              <p>Points earned</p>
-              <strong>{analytics.totals.totalPointsEarned.toLocaleString()}</strong>
+              <p>Reward value earned</p>
+              <strong>{formatRewardBalance(analytics.totals.totalPointsEarned)}</strong>
               <small>From recorded activity</small>
             </article>
             <article className="analytics-summary-card">
@@ -158,11 +159,11 @@ export const ActivityAnalytics = () => {
 
             <article className="analytics-card">
               <div className="analytics-card-heading">
-                <div><h3>Points movement</h3><p>Earned and redeemed points</p></div>
+                <div><h3>Reward value</h3><p>Earned and redeemed amounts</p></div>
               </div>
               {analytics.totals.loggedDays || analytics.totals.totalRedemptions ? (
                 <div className="analytics-chart"><Bar data={makePointsChartData(analytics.buckets)} options={chartOptions} /></div>
-              ) : <p className="analytics-empty">No points or redemptions recorded in this range.</p>}
+              ) : <p className="analytics-empty">No reward earnings or redemptions recorded in this range.</p>}
             </article>
 
             <article className="analytics-card">

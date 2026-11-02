@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { leaderboardService } from '../services/apiService';
 import { LoadingSpinner } from '../components/Shared';
+import { formatRewardBalance } from '../utils/rewardCurrency';
 
 export const Leaderboard = () => {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -39,7 +40,7 @@ export const Leaderboard = () => {
             <div className="rank-badge">#{userRank.rank}</div>
             <div className="rank-info">
               <h3>{userRank.name}</h3>
-              <p>{userRank.totalSteps.toLocaleString()} Steps | {userRank.totalPoints} Points</p>
+              <p>{userRank.totalSteps.toLocaleString()} Steps | {formatRewardBalance(userRank.totalPoints)} earned</p>
             </div>
           </div>
         )}
@@ -69,8 +70,8 @@ export const Leaderboard = () => {
                 </div>
 
                 <div className="points-display">
-                  <p className="points">{user.totalPoints}</p>
-                  <p className="label">Points</p>
+                  <p className="points">{formatRewardBalance(user.totalPoints)}</p>
+                  <p className="label">Earned</p>
                 </div>
               </div>
             ))}

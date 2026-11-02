@@ -18,7 +18,7 @@
 
 **Health Reward Management System** is a full-stack MERN application that enables users to:
 - Track their daily walking steps
-- Earn reward points based on steps (100 steps = 1 point)
+- Earn reward balance based on steps (1 step = 10 paise; 100 steps = ₹10 by default)
 - Redeem points for various rewards (cash, movie tickets, vouchers, coupons)
 - View their progress on a leaderboard
 - Admins can manage users, rewards, and view reports
@@ -149,7 +149,6 @@ JWT_SECRET=your_super_secret_jwt_key_change_in_production_12345
 JWT_EXPIRE=7d
 
 # Reward Configuration
-STEPS_TO_POINTS_RATIO=100
 CORS_ORIGINS=http://localhost:3000
 API_RATE_LIMIT=300
 LOGIN_RATE_LIMIT=10
@@ -322,7 +321,7 @@ Response: 201 Created
 {
   "success": true,
   "data": { step_object },
-  "message": "8500 steps recorded! You earned 85 points."
+  "message": "8500 steps recorded! You earned ₹850.00."
 }
 ```
 
@@ -371,7 +370,7 @@ Response:
       "_id": "reward_id",
       "title": "₹10 Cash Reward",
       "category": "CASH",
-      "pointsRequired": 100,
+      "pointsRequired": 1000,
       "value": 10,
       "currency": "₹",
       "description": "Get ₹10 cashback"
@@ -643,7 +642,6 @@ PORT                 - Server port (default: 5000)
 NODE_ENV            - Environment (development/production)
 JWT_SECRET          - Secret key for JWT signing
 JWT_EXPIRE          - Token expiration time
-STEPS_TO_POINTS_RATIO - Conversion ratio (default: 100)
 ```
 
 ### Frontend (.env)
